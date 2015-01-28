@@ -1,2 +1,1 @@
-include ':MIDIDriverSample'
-include ':MIDIDriver'
+include ':javax.sound.midi'
