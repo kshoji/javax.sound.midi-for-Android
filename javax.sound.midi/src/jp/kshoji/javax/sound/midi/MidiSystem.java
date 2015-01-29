@@ -1,8 +1,5 @@
 package jp.kshoji.javax.sound.midi;
 
-import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbDeviceConnection;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,7 +8,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import jp.kshoji.javax.sound.midi.MidiDevice.Info;
@@ -25,11 +21,32 @@ import jp.kshoji.javax.sound.midi.io.StandardMidiFileWriter;
  * @author K.Shoji
  */
 public final class MidiSystem {
-	static Map<UsbDevice, Set<MidiDevice>> midiDevices = null;
-	static Map<UsbDevice, UsbDeviceConnection> deviceConnections;
+	static final Set<MidiDevice> midiDevices = new HashSet<MidiDevice>();
 	static OnMidiSystemEventListener systemEventListener = null;
 
-	/**
+    /**
+     * Add a {@link jp.kshoji.javax.sound.midi.MidiDevice} to the {@link jp.kshoji.javax.sound.midi.MidiSystem}
+     *
+     * @param midiDevice the device to add
+     */
+    static void addMidiDevice(MidiDevice midiDevice) {
+        synchronized (midiDevices) {
+            midiDevices.add(midiDevice);
+        }
+    }
+
+    /**
+     * Remove a {@link jp.kshoji.javax.sound.midi.MidiDevice} from the {@link jp.kshoji.javax.sound.midi.MidiSystem}
+     *
+     * @param midiDevice the device to remove
+     */
+    static void removeMidiDevice(MidiDevice midiDevice) {
+        synchronized (midiDevices) {
+            midiDevices.remove(midiDevice);
+        }
+    }
+
+    /**
 	 * Utilities for {@link MidiSystem}
 	 *
 	 * @author K.Shoji
@@ -99,11 +116,9 @@ public final class MidiSystem {
 	 */
 	public static MidiDevice.Info[] getMidiDeviceInfo() {
 		List<MidiDevice.Info> result = new ArrayList<MidiDevice.Info>();
-		if (midiDevices != null) {
-            for (UsbDevice device : midiDevices.keySet()) {
-                for (MidiDevice midiDevice : midiDevices.get(device)) {
-                    result.add(midiDevice.getDeviceInfo());
-                }
+		synchronized (midiDevices) {
+            for (MidiDevice device : midiDevices) {
+                result.add(device.getDeviceInfo());
             }
 		}
 		return result.toArray(new MidiDevice.Info[0]);
@@ -117,12 +132,10 @@ public final class MidiSystem {
 	 * @throws MidiUnavailableException
 	 */
 	public static MidiDevice getMidiDevice(MidiDevice.Info info) throws MidiUnavailableException {
-		if (midiDevices != null) {
-            for (UsbDevice device : midiDevices.keySet()) {
-                for (MidiDevice midiDevice : midiDevices.get(device)) {
-                    if (info.equals(midiDevice.getDeviceInfo())) {
-                        return midiDevice;
-                    }
+        synchronized (midiDevices) {
+            for (MidiDevice midiDevice : midiDevices) {
+                if (info.equals(midiDevice.getDeviceInfo())) {
+                    return midiDevice;
                 }
             }
 		}
@@ -137,13 +150,11 @@ public final class MidiSystem {
 	 * @throws MidiUnavailableException
 	 */
 	public static Receiver getReceiver() throws MidiUnavailableException {
-		if (midiDevices != null) {
-            for (UsbDevice device : midiDevices.keySet()) {
-                for (MidiDevice midiDevice : midiDevices.get(device)) {
-                    Receiver receiver = midiDevice.getReceiver();
-                    if (receiver != null) {
-                        return receiver;
-                    }
+        synchronized (midiDevices) {
+            for (MidiDevice midiDevice : midiDevices) {
+                Receiver receiver = midiDevice.getReceiver();
+                if (receiver != null) {
+                    return receiver;
                 }
             }
 		}
@@ -157,13 +168,11 @@ public final class MidiSystem {
 	 * @throws MidiUnavailableException
 	 */
 	public static Transmitter getTransmitter() throws MidiUnavailableException {
-		if (midiDevices != null) {
-            for (UsbDevice device : midiDevices.keySet()) {
-                for (MidiDevice midiDevice : midiDevices.get(device)) {
-                    Transmitter transmitter = midiDevice.getTransmitter();
-                    if (transmitter != null) {
-                        return transmitter;
-                    }
+        synchronized (midiDevices) {
+            for (MidiDevice midiDevice : midiDevices) {
+                Transmitter transmitter = midiDevice.getTransmitter();
+                if (transmitter != null) {
+                    return transmitter;
                 }
             }
 		}
