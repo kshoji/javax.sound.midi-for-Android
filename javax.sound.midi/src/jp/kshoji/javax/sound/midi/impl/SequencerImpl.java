@@ -500,7 +500,7 @@ public class SequencerImpl implements Sequencer {
      */
     @Override
     public Info getDeviceInfo() {
-        return new Info("UsbMidiSequencer", "jp.kshoji", "Android USB MIDI Sequencer", "0.1");
+        return new Info("Sequencer", "jp.kshoji", "Android MIDI Sequencer", "0.1");
     }
 
     /*
@@ -523,7 +523,7 @@ public class SequencerImpl implements Sequencer {
 
         if (sequencerThread == null) {
             sequencerThread = new SequencerThread();
-            sequencerThread.setName("UsbMidiSequencer_" + sequencerThread.getId());
+            sequencerThread.setName("MidiSequencer_" + sequencerThread.getId());
             try {
                 sequencerThread.start();
             } catch (IllegalThreadStateException e) {
