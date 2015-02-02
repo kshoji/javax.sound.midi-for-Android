@@ -16,13 +16,12 @@ import jp.kshoji.javax.sound.midi.io.StandardMidiFileReader;
 import jp.kshoji.javax.sound.midi.io.StandardMidiFileWriter;
 
 /**
- * MidiSystem porting for Android.<br />
+ * MidiSystem porting for Android
  *
  * @author K.Shoji
  */
 public final class MidiSystem {
 	static final Set<MidiDevice> midiDevices = new HashSet<MidiDevice>();
-	static OnMidiSystemEventListener systemEventListener = null;
 
     /**
      * Add a {@link jp.kshoji.javax.sound.midi.MidiDevice} to the {@link jp.kshoji.javax.sound.midi.MidiSystem}
@@ -85,34 +84,13 @@ public final class MidiSystem {
 		}
 	}
 
-	/**
-	 * Listener for MidiSystem event listener
-	 *
-	 * @author K.Shoji
-	 */
-	public interface OnMidiSystemEventListener {
-		/**
-		 * MidiSystem has been changed.
-		 * (new device is connected, or disconnected.)
-		 */
-		void onMidiSystemChanged();
-	}
-
-	/**
-	 * Set the listener of Device connection/disconnection
-	 * @param listener
-	 */
-	public static void setOnMidiSystemEventListener(OnMidiSystemEventListener listener) {
-		systemEventListener = listener;
-	}
-
 	private MidiSystem() {
 	}
 
 	/**
 	 * get all connected {@link MidiDevice.Info} as array
 	 *
-	 * @return device informations
+	 * @return device information
 	 */
 	public static MidiDevice.Info[] getMidiDeviceInfo() {
 		List<MidiDevice.Info> result = new ArrayList<MidiDevice.Info>();
@@ -121,7 +99,7 @@ public final class MidiSystem {
                 result.add(device.getDeviceInfo());
             }
 		}
-		return result.toArray(new MidiDevice.Info[0]);
+		return result.toArray(new MidiDevice.Info[result.size()]);
 	}
 
 	/**
@@ -130,8 +108,9 @@ public final class MidiSystem {
 	 * @param info
 	 * @return {@link MidiDevice}
 	 * @throws MidiUnavailableException
+	 * @throws IllegalArgumentException if the device not found.
 	 */
-	public static MidiDevice getMidiDevice(MidiDevice.Info info) throws MidiUnavailableException {
+	public static MidiDevice getMidiDevice(MidiDevice.Info info) throws MidiUnavailableException, IllegalArgumentException {
         synchronized (midiDevices) {
             for (MidiDevice midiDevice : midiDevices) {
                 if (info.equals(midiDevice.getDeviceInfo())) {
