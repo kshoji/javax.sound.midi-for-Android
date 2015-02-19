@@ -153,28 +153,29 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 	 */
 	private static int writeTrack(Track track, MidiDataOutputStream midiDataOutputStream) throws IOException {
 		int eventCount = track.size();
-
-		midiDataOutputStream.writeInt(MidiFileFormat.HEADER_MTrk);
-
-		// calculate the track length
-		int trackLength = 0;
-		long lastTick = 0;
-        boolean has_end_of_track = false;
+        int trackLength = 0;
+        long lastTick = 0;
+        boolean hasEndOfTrack = false;
         MidiEvent midiEvent = null;
 
+        // track header
+        midiDataOutputStream.writeInt(MidiFileFormat.HEADER_MTrk);
+        trackLength += 4;
+
+		// calculate the track length
 		for (int i = 0; i < eventCount; i++) {
             midiEvent = track.get(i);
 			long tick = midiEvent.getTick();
 			trackLength += MidiDataOutputStream.variableLengthIntLength((int) (tick - lastTick));
 			lastTick = tick;
-			
+
 			trackLength += midiEvent.getMessage().getLength();
 		}
 
         // process End of Track message
         if (midiEvent != null && (midiEvent.getMessage() instanceof MetaMessage) && //
             ((MetaMessage)midiEvent.getMessage()).getType() == MetaMessage.TYPE_END_OF_TRACK) {
-            has_end_of_track = true;
+            hasEndOfTrack = true;
         } else {
             trackLength += 4; // End of Track
         }
@@ -189,16 +190,16 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 			lastTick = tick;
 			
 			midiDataOutputStream.write(midiEvent.getMessage().getMessage(), 0, midiEvent.getMessage().getLength());
-		}
+        }
 
-		// write End of Track message if not found.
-        if (!has_end_of_track) {
+        // write End of Track message if not found.
+        if (!hasEndOfTrack) {
             midiDataOutputStream.writeVariableLengthInt(0);
             midiDataOutputStream.writeByte(MetaMessage.META);
             midiDataOutputStream.writeByte(MetaMessage.TYPE_END_OF_TRACK);
             midiDataOutputStream.writeVariableLengthInt(0);
         }
 
-		return trackLength + 4;  // HEADER_MTrk
+		return trackLength;
 	}
 }
