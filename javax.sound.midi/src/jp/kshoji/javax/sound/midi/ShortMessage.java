@@ -81,7 +81,7 @@ public class ShortMessage extends MidiMessage {
 			}
 		}
 		
-		if (data == null || data.length < dataLength + 1) {
+		if (data == null || data.length != dataLength + 1) {
 			data = new byte[dataLength + 1];
 		}
 
