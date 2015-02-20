@@ -7,6 +7,7 @@ package jp.kshoji.javax.sound.midi;
  */
 public abstract class MidiMessage implements Cloneable {
 	protected byte[] data;
+    protected int length;
 
     /**
      * Constructor with the raw data
@@ -15,6 +16,12 @@ public abstract class MidiMessage implements Cloneable {
      */
 	protected MidiMessage(byte[] data) {
 		this.data = data;
+
+        if (data == null) {
+            length = 0;
+        } else {
+            length = data.length;
+        }
 	}
 
 	/**
@@ -28,6 +35,7 @@ public abstract class MidiMessage implements Cloneable {
 		if (this.data == null || this.data.length != data.length) {
 			this.data = new byte[data.length];
 		}
+        this.length = data.length;
 		System.arraycopy(data, 0, this.data, 0, data.length);
 	}
 
@@ -76,6 +84,10 @@ public abstract class MidiMessage implements Cloneable {
      * @return hex dumped string
      */
 	static String toHexString(byte[] src) {
+        if (src == null) {
+            return "null";
+        }
+
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("[");
 		boolean needComma = false;

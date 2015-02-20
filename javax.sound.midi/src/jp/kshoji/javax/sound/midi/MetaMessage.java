@@ -27,13 +27,17 @@ public class MetaMessage extends MidiMessage {
 	/**
 	 * Constructor with raw data
 	 * 
-	 * @param data the data source
+	 * @param data the data source, the length must be longer than 2 bytes
 	 * @throws NegativeArraySizeException MUST be caught. We can't throw {@link InvalidMidiDataException} because of API compatibility.
 	 */
 	protected MetaMessage(byte[] data) throws NegativeArraySizeException {
 		super(data);
 
-		if (data.length >= 3) {
+        if (data.length < 3) {
+            // 'dataLength' may negative value. Negative 'dataLength' will throw NegativeArraySizeException when getData() called.
+            throw new NegativeArraySizeException("Invalid meta event. data: " + Arrays.toString(data));
+        } else {
+            // check length
 			dataLength = data.length - 3;
 			int pos = 2;
 			while (pos < data.length && (data[pos] & 0x80) != 0) {
@@ -42,16 +46,29 @@ public class MetaMessage extends MidiMessage {
 			}
 		}
 
-		if (dataLength < 0) {
-			// 'dataLength' may negative value. Negative 'dataLength' will throw NegativeArraySizeException when getData() called.
-			throw new NegativeArraySizeException("Invalid meta event. data: " + Arrays.toString(data));
-		}
+        if (dataLength < 0) {
+            // 'dataLength' may negative value. Negative 'dataLength' will throw NegativeArraySizeException when getData() called.
+            throw new NegativeArraySizeException("Invalid meta event. data: " + Arrays.toString(data));
+        }
 	}
+
+    /**
+     * Constructor with the entire information of message
+     *
+     * @param type the data type
+     * @param data the data source
+     * @param length unused parameter. Use always data.length
+     * @throws InvalidMidiDataException
+     */
+    public MetaMessage(int type, byte[] data, int length) throws InvalidMidiDataException {
+        super(null);
+        setMessage(type, data, length);
+    }
 
 	/**
 	 * Set the entire information of message.
 	 * 
-	 * @param type the data type
+	 * @param type the data type 0-127
 	 * @param data the data source
 	 * @param length unused parameter. Use always data.length
 	 * @throws InvalidMidiDataException
@@ -61,13 +78,21 @@ public class MetaMessage extends MidiMessage {
 			throw new InvalidMidiDataException("Invalid meta event. type: " + type);
 		}
 
-		this.dataLength = data.length;
-		this.data = new byte[2 + getMidiValuesLength(data.length) + data.length];
+        int headerLength = 2 + getMidiValuesLength(data.length);
+        this.dataLength = data.length;
+        this.data = new byte[headerLength + data.length];
+        this.length = this.data.length;
+
+        // Write header
 		this.data[0] = (byte) META;
 		this.data[1] = (byte) type;
+
+        // Write data length
 		writeMidiValues(this.data, 2, data.length);
-		if (this.data.length > 0) {
-			System.arraycopy(data, 0, this.data, this.data.length - this.dataLength, this.dataLength);
+
+        // Write data
+		if (data.length > 0) {
+			System.arraycopy(data, 0, this.data, headerLength, data.length);
 		}
 	}
 
@@ -86,7 +111,7 @@ public class MetaMessage extends MidiMessage {
 	/**
 	 * Get the data of {@link MetaMessage}
 	 * 
-	 * @return the data
+	 * @return the data without header(`META`, type, data length)
 	 */
 	public byte[] getData() {
 		byte[] returnedArray = new byte[dataLength];

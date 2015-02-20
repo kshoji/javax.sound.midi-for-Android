@@ -148,4 +148,13 @@ public class Sequence {
 		tracks.toArray(track);
 		return track;
 	}
+
+    /**
+     * Get list of {@link Patch}es used in this Sequence.
+     *
+     * @return empty array(not implemented)
+     */
+    public Patch[] getPatchList() {
+        return new Patch[] {};
+    }
 }

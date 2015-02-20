@@ -30,11 +30,23 @@ public class SysexMessage extends MidiMessage {
      * @param length the data length
      * @throws InvalidMidiDataException
      */
-	public SysexMessage(byte[] data, int length)
-			throws InvalidMidiDataException {
+	public SysexMessage(byte[] data, int length) throws InvalidMidiDataException {
 		super(null);
 		setMessage(data, length);
 	}
+
+    /**
+     * Constructor with raw data and length.
+     *
+     * @param status must be ShortMessage.START_OF_EXCLUSIVE or ShortMessage.END_OF_EXCLUSIVE
+     * @param data the SysEx data
+     * @param length unused parameter. Use always data.length
+     * @throws InvalidMidiDataException
+     */
+    public SysexMessage(int status, byte[] data, int length) throws InvalidMidiDataException {
+        super(null);
+        setMessage(status, data, length);
+    }
 
 	@Override
 	public void setMessage(byte[] data, int length) throws InvalidMidiDataException {
@@ -60,6 +72,7 @@ public class SysexMessage extends MidiMessage {
 
 		// extend 1 byte
 		this.data = new byte[data.length + 1];
+        this.length = this.data.length;
 
 		this.data[0] = (byte) (status & 0xff);
 		if (data.length > 0) {
