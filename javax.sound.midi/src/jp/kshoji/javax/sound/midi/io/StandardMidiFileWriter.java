@@ -107,7 +107,7 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 	@Override
 	public int write(Sequence sequence, int fileType, OutputStream outputStream) throws IOException {
 		MidiDataOutputStream midiDataOutputStream = new MidiDataOutputStream(outputStream);
-		
+
 		Track[] tracks = sequence.getTracks();
 		midiDataOutputStream.writeInt(MidiFileFormat.HEADER_MThd);
 		midiDataOutputStream.writeInt(6);
@@ -160,7 +160,6 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 
         // track header
         midiDataOutputStream.writeInt(MidiFileFormat.HEADER_MTrk);
-        trackLength += 4;
 
 		// calculate the track length
 		for (int i = 0; i < eventCount; i++) {
@@ -200,6 +199,6 @@ public class StandardMidiFileWriter extends MidiFileWriter {
             midiDataOutputStream.writeVariableLengthInt(0);
         }
 
-		return trackLength;
+		return trackLength + 4;
 	}
 }
