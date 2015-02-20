@@ -135,9 +135,8 @@ public class Track {
 	/**
 	 * Add {@link MidiEvent} to this {@link Track}
 	 * 
-	 * @param event
-	 *            to add
-	 * @return
+	 * @param event to add
+	 * @return true if the event has been added
 	 */
 	public boolean add(MidiEvent event) {
 		synchronized (events) {
@@ -148,8 +147,8 @@ public class Track {
 	/**
 	 * Get specified index of {@link MidiEvent}
 	 * 
-	 * @param index
-	 * @return
+	 * @param index the index of event
+	 * @return the MidiEvent
 	 * @throws ArrayIndexOutOfBoundsException
 	 */
 	public MidiEvent get(int index) throws ArrayIndexOutOfBoundsException {
@@ -161,9 +160,8 @@ public class Track {
 	/**
 	 * Remove {@link MidiEvent} from this {@link Track}
 	 * 
-	 * @param event
-	 *            to remove
-	 * @return true if the event was removed
+	 * @param event to remove
+	 * @return true if the event has been removed
 	 */
 	public boolean remove(MidiEvent event) {
 		synchronized (events) {
@@ -174,7 +172,7 @@ public class Track {
 	/**
 	 * Get the number of events in the {@link Track}
 	 * 
-	 * @return
+	 * @return the number of events
 	 */
 	public int size() {
 		synchronized (events) {
@@ -185,7 +183,7 @@ public class Track {
 	/**
 	 * Get length of ticks for this {@link Track}
 	 * 
-	 * @return
+	 * @return the length of ticks
 	 */
 	public long ticks() {
 		TrackUtils.sortEvents(this);

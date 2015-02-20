@@ -23,7 +23,7 @@ public class Patch {
     /**
      * Get the bank of {@link jp.kshoji.javax.sound.midi.Patch}
      *
-     * @return the bank of {@link jp.kshoji.javax.sound.midi.Patch}
+     * @return the bank of {@link jp.kshoji.javax.sound.midi.Patch}, 0-16383
      */
     public int getBank() {
         return bank;
@@ -32,7 +32,7 @@ public class Patch {
     /**
      * Get the program of {@link jp.kshoji.javax.sound.midi.Patch}
      *
-     * @return the program of {@link jp.kshoji.javax.sound.midi.Patch}
+     * @return the program of {@link jp.kshoji.javax.sound.midi.Patch}, 0-127
      */
     public int getProgram() {
         return program;
