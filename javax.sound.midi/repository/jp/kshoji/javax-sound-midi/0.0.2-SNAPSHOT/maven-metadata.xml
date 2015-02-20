@@ -2,13 +2,12 @@
 <metadata>
   <groupId>jp.kshoji</groupId>
   <artifactId>javax-sound-midi</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.2-SNAPSHOT</version>
   <versioning>
-    <versions>
-      <version>0.0.1-SNAPSHOT</version>
-      <version>0.0.1</version>
-      <version>0.0.2-SNAPSHOT</version>
-    </versions>
+    <snapshot>
+      <timestamp>20150220.040714</timestamp>
+      <buildNumber>2</buildNumber>
+    </snapshot>
     <lastUpdated>20150220040714</lastUpdated>
   </versioning>
 </metadata>

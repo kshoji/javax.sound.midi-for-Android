@@ -107,7 +107,7 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 	@Override
 	public int write(Sequence sequence, int fileType, OutputStream outputStream) throws IOException {
 		MidiDataOutputStream midiDataOutputStream = new MidiDataOutputStream(outputStream);
-		
+
 		Track[] tracks = sequence.getTracks();
 		midiDataOutputStream.writeInt(MidiFileFormat.HEADER_MThd);
 		midiDataOutputStream.writeInt(6);
@@ -153,51 +153,52 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 	 */
 	private static int writeTrack(Track track, MidiDataOutputStream midiDataOutputStream) throws IOException {
 		int eventCount = track.size();
+        int trackLength = 0;
+        long lastTick = 0;
+        boolean hasEndOfTrack = false;
+        MidiEvent midiEvent = null;
 
-		midiDataOutputStream.writeInt(MidiFileFormat.HEADER_MTrk);
-		
+        // track header
+        midiDataOutputStream.writeInt(MidiFileFormat.HEADER_MTrk);
+
 		// calculate the track length
-		int trackLength = 0;
-		long lastTick = 0;
 		for (int i = 0; i < eventCount; i++) {
-			MidiEvent midiEvent = track.get(i);
+            midiEvent = track.get(i);
 			long tick = midiEvent.getTick();
 			trackLength += MidiDataOutputStream.variableLengthIntLength((int) (tick - lastTick));
 			lastTick = tick;
-			
+
 			trackLength += midiEvent.getMessage().getLength();
 		}
-		midiDataOutputStream.writeInt(trackLength);
 
-		// write the track data
+        // process End of Track message
+        if (midiEvent != null && (midiEvent.getMessage() instanceof MetaMessage) && //
+            ((MetaMessage)midiEvent.getMessage()).getType() == MetaMessage.TYPE_END_OF_TRACK) {
+            hasEndOfTrack = true;
+        } else {
+            trackLength += 4; // End of Track
+        }
+        midiDataOutputStream.writeInt(trackLength);
+
+        // write the track data
 		lastTick = 0;
 		for (int i = 0; i < eventCount; i++) {
-			MidiEvent midiEvent = track.get(i);
-			long tick = midiEvent.getTick();
+            midiEvent = track.get(i);
+            long tick = midiEvent.getTick();
 			midiDataOutputStream.writeVariableLengthInt((int) (tick - lastTick));
 			lastTick = tick;
 			
 			midiDataOutputStream.write(midiEvent.getMessage().getMessage(), 0, midiEvent.getMessage().getLength());
-		}
+        }
 
-		// process End of Track message
-		if (eventCount > 0) {
-			MidiEvent lastMidiEvent = track.get(eventCount - 1);
-			if (lastMidiEvent != null && (lastMidiEvent.getMessage() instanceof MetaMessage)) {
-				MetaMessage metaMessage = (MetaMessage) lastMidiEvent.getMessage();
-				if (metaMessage.getType() == MetaMessage.TYPE_END_OF_TRACK) {
-					// End of Track
-					return trackLength + 8;
-				}
-			}
-		}
+        // write End of Track message if not found.
+        if (!hasEndOfTrack) {
+            midiDataOutputStream.writeVariableLengthInt(0);
+            midiDataOutputStream.writeByte(MetaMessage.META);
+            midiDataOutputStream.writeByte(MetaMessage.TYPE_END_OF_TRACK);
+            midiDataOutputStream.writeVariableLengthInt(0);
+        }
 
-		// write End of Track message if not found.
-		midiDataOutputStream.writeVariableLengthInt(0);
-		midiDataOutputStream.writeByte(MetaMessage.META);
-		midiDataOutputStream.writeByte(MetaMessage.TYPE_END_OF_TRACK);
-		midiDataOutputStream.writeVariableLengthInt(0);
-
-		return trackLength + 12;
+		return trackLength + 4;
 	}
 }
