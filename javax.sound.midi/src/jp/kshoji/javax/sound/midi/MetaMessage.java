@@ -18,16 +18,16 @@ public class MetaMessage extends MidiMessage {
 	private int dataLength = 0;
 
 	/**
-	 * Default constructor.
+	 * Constructor with default message
 	 */
 	public MetaMessage() {
 		this(defaultMessage);
 	}
 
 	/**
-	 * Constructor with raw data.
+	 * Constructor with raw data
 	 * 
-	 * @param data
+	 * @param data the data source
 	 * @throws NegativeArraySizeException MUST be caught. We can't throw {@link InvalidMidiDataException} because of API compatibility.
 	 */
 	protected MetaMessage(byte[] data) throws NegativeArraySizeException {
@@ -49,10 +49,10 @@ public class MetaMessage extends MidiMessage {
 	}
 
 	/**
-	 * Set the entire informations of message.
+	 * Set the entire information of message.
 	 * 
-	 * @param type
-	 * @param data
+	 * @param type the data type
+	 * @param data the data source
 	 * @param length unused parameter. Use always data.length
 	 * @throws InvalidMidiDataException
 	 */
@@ -74,7 +74,7 @@ public class MetaMessage extends MidiMessage {
 	/**
 	 * Get the type of {@link MetaMessage}
 	 * 
-	 * @return
+	 * @return the type
 	 */
 	public int getType() {
 		if (data.length >= 2) {
@@ -86,7 +86,7 @@ public class MetaMessage extends MidiMessage {
 	/**
 	 * Get the data of {@link MetaMessage}
 	 * 
-	 * @return
+	 * @return the data
 	 */
 	public byte[] getData() {
 		byte[] returnedArray = new byte[dataLength];
@@ -94,10 +94,6 @@ public class MetaMessage extends MidiMessage {
 		return returnedArray;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#clone()
-	 */
 	@Override
 	public Object clone() {
 		byte[] result = new byte[data.length];
@@ -105,6 +101,12 @@ public class MetaMessage extends MidiMessage {
 		return new MetaMessage(result);
 	}
 
+    /**
+     * Get the data length for the specified value
+     *
+     * @param value the value to write
+     * @return the data length
+     */
 	private static int getMidiValuesLength(long value) {
 		int length = 0;
 		long currentValue = value;
@@ -115,16 +117,23 @@ public class MetaMessage extends MidiMessage {
 		return length;
 	}
 
-	private static void writeMidiValues(byte[] data, int off, long value) {
+    /**
+     * Write the MIDI value to the data
+     *
+     * @param data output byte array
+     * @param offset the offset
+     * @param value the value to write
+     */
+	private static void writeMidiValues(byte[] data, int offset, long value) {
 		int shift = 63;
 		while ((shift > 0) && ((value & (0x7f << shift)) == 0)) {
 			shift -= 7;
 		}
-		int currentOff = off;
+		int currentOffset = offset;
 		while (shift > 0) {
-			data[currentOff++] = (byte) (((value & (0x7f << shift)) >> shift) | 0x80);
+			data[currentOffset++] = (byte) (((value & (0x7f << shift)) >> shift) | 0x80);
 			shift -= 7;
 		}
-		data[currentOff] = (byte) (value & 0x7f);
+		data[currentOffset] = (byte) (value & 0x7f);
 	}
 }

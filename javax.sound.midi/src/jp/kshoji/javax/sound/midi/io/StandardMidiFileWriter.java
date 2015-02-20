@@ -13,12 +13,35 @@ import jp.kshoji.javax.sound.midi.Sequence;
 import jp.kshoji.javax.sound.midi.Track;
 import jp.kshoji.javax.sound.midi.spi.MidiFileWriter;
 
+/**
+ * The implementation SMF writer
+ *
+ * @author K.Shoji
+ */
 public class StandardMidiFileWriter extends MidiFileWriter {
-	static class MidiDataOutputStream extends DataOutputStream {
+
+    /**
+     * Represents OutputStream for MIDI Data
+     *
+     * @author K.Shoji
+     */
+    static class MidiDataOutputStream extends DataOutputStream {
+
+        /**
+         * Constructor
+         *
+         * @param outputStream the source stream
+         */
 		public MidiDataOutputStream(OutputStream outputStream) {
 			super(outputStream);
 		}
-		
+
+        /**
+         * Convert the specified value into the value for MIDI data
+         *
+         * @param value the original value
+         * @return the raw data to write
+         */
 		private static int getValueToWrite(int value) {
 			int result = value & 0x7f;
 			int currentValue = value;
@@ -30,6 +53,12 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 			return result;
 		}
 
+        /**
+         * Get the data length for the specified value
+         *
+         * @param value the value
+         * @return the data length
+         */
 		public static int variableLengthIntLength(int value) {
 			int valueToWrite = getValueToWrite(value);
 
@@ -47,6 +76,12 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 			return length;
 		}
 
+        /**
+         * Write the specified value to the OutputStream
+         *
+         * @param value the value
+         * @throws IOException
+         */
 		public synchronized void writeVariableLengthInt(int value) throws IOException {
 			int valueToWrite = getValueToWrite(value);
 
@@ -62,21 +97,11 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 		}
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jp.kshoji.javax.sound.midi.spi.MidiFileWriter#getMidiFileTypes()
-	 */
 	@Override
 	public int[] getMidiFileTypes() {
 		return new int[] { 0, 1 };
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jp.kshoji.javax.sound.midi.spi.MidiFileWriter#getMidiFileTypes(jp.kshoji.javax.sound.midi.Sequence)
-	 */
 	@Override
 	public int[] getMidiFileTypes(Sequence sequence) {
 		if (sequence.getTracks().length > 1) {
@@ -86,11 +111,6 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jp.kshoji.javax.sound.midi.spi.MidiFileWriter#write(jp.kshoji.javax.sound.midi.Sequence, int, java.io.File)
-	 */
 	@Override
 	public int write(Sequence sequence, int fileType, File file) throws IOException {
 		FileOutputStream fileOutputStream = new FileOutputStream(file);
@@ -99,11 +119,6 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 		return written;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jp.kshoji.javax.sound.midi.spi.MidiFileWriter#write(jp.kshoji.javax.sound.midi.Sequence, int, java.io.OutputStream)
-	 */
 	@Override
 	public int write(Sequence sequence, int fileType, OutputStream outputStream) throws IOException {
 		MidiDataOutputStream midiDataOutputStream = new MidiDataOutputStream(outputStream);
@@ -146,8 +161,8 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 	/**
 	 * Write {@link Track} data into {@link MidiDataOutputStream}
 	 * 
-	 * @param track
-	 * @param midiDataOutputStream
+	 * @param track the track
+	 * @param midiDataOutputStream the OutputStream
 	 * @return written byte length
 	 * @throws IOException
 	 */

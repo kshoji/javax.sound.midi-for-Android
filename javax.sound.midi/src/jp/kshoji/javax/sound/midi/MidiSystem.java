@@ -54,7 +54,7 @@ public final class MidiSystem {
 		/**
 		 * Get currently connected {@link Receiver}s
 		 *
-		 * @return
+		 * @return currently connected {@link Receiver}s
 		 * @throws MidiUnavailableException
 		 */
 		public static List<Receiver> getReceivers() throws MidiUnavailableException {
@@ -70,7 +70,7 @@ public final class MidiSystem {
 		/**
 		 * Get currently connected {@link Transmitter}s
 		 *
-		 * @return
+		 * @return currently connected {@link Transmitter}s
 		 * @throws MidiUnavailableException
 		 */
 		public static List<Transmitter> getTransmitters() throws MidiUnavailableException {
@@ -84,11 +84,14 @@ public final class MidiSystem {
 		}
 	}
 
+    /**
+     * Private Constructor; this class can't be instantiated.
+     */
 	private MidiSystem() {
 	}
 
 	/**
-	 * get all connected {@link MidiDevice.Info} as array
+	 * Get all connected {@link MidiDevice.Info} as array
 	 *
 	 * @return device information
 	 */
@@ -103,9 +106,9 @@ public final class MidiSystem {
 	}
 
 	/**
-	 * get {@link MidiDevice} by device information
+	 * Get {@link MidiDevice} by device information
 	 *
-	 * @param info
+	 * @param info the device information
 	 * @return {@link MidiDevice}
 	 * @throws MidiUnavailableException
 	 * @throws IllegalArgumentException if the device not found.
@@ -123,7 +126,7 @@ public final class MidiSystem {
 	}
 
 	/**
-	 * get the first detected Receiver
+	 * Get the first detected Receiver
 	 *
 	 * @return {@link Receiver}
 	 * @throws MidiUnavailableException
@@ -141,7 +144,7 @@ public final class MidiSystem {
 	}
 
 	/**
-	 * get the first detected Transmitter
+	 * Get the first detected Transmitter
 	 *
 	 * @return {@link Transmitter}
 	 * @throws MidiUnavailableException
@@ -159,10 +162,10 @@ public final class MidiSystem {
 	}
 
 	/**
-	 * get a {@link Sequence} from the specified File.
+	 * Get a {@link Sequence} from the specified File.
 	 *
-	 * @param file
-	 * @return
+	 * @param file the SMF
+	 * @return the {@link Sequence}
 	 * @throws InvalidMidiDataException
 	 * @throws IOException
 	 */
@@ -172,10 +175,10 @@ public final class MidiSystem {
 	}
 
 	/**
-	 * get a {@link Sequence} from the specified input stream.
+	 * Get a {@link Sequence} from the specified input stream.
 	 *
-	 * @param stream
-	 * @return
+	 * @param stream the input stream of SMF
+     * @return the {@link Sequence}
 	 * @throws InvalidMidiDataException
 	 * @throws IOException
 	 */
@@ -185,9 +188,10 @@ public final class MidiSystem {
 	}
 
 	/**
-	 * get a {@link Sequence} from the specified URL.
-	 * @param url
-	 * @return
+	 * Get a {@link Sequence} from the specified URL.
+     *
+	 * @param url the URL of SMF
+     * @return the {@link Sequence}
 	 * @throws InvalidMidiDataException
 	 * @throws IOException
 	 */
@@ -197,7 +201,7 @@ public final class MidiSystem {
 	}
 
 	/**
-	 * get the default {@link Sequencer}, connected to a default device.
+	 * Get the default {@link Sequencer}, connected to a default device.
 	 *
 	 * @return {@link Sequencer} must call the {@link Sequencer#open()} method.
 	 * @throws MidiUnavailableException
@@ -207,7 +211,7 @@ public final class MidiSystem {
 	}
 
 	/**
-	 * get the default {@link Sequencer}, optionally connected to a default device.
+	 * Get the default {@link Sequencer}, optionally connected to a default device.
 	 *
 	 * @param connected ignored
 	 * @return {@link Sequencer} must call the {@link Sequencer#open()} method.
@@ -221,8 +225,8 @@ public final class MidiSystem {
      * Obtain {@link jp.kshoji.javax.sound.midi.Soundbank} from File<br />
      * not implemented.
      *
-     * @param file
-     * @return
+     * @param file the Soundbank file
+     * @return {@link jp.kshoji.javax.sound.midi.Soundbank}
      * @throws InvalidMidiDataException
      * @throws IOException
      */
@@ -234,8 +238,8 @@ public final class MidiSystem {
      * Obtain {@link jp.kshoji.javax.sound.midi.Soundbank} from InputStream<br />
      * not implemented.
      *
-     * @param stream
-     * @return
+     * @param stream the input stream of Soundbank
+     * @return {@link jp.kshoji.javax.sound.midi.Soundbank}
      * @throws InvalidMidiDataException
      * @throws IOException
      */
@@ -247,8 +251,8 @@ public final class MidiSystem {
      * Obtain {@link jp.kshoji.javax.sound.midi.Soundbank} from URL<br />
      * not implemented.
      *
-     * @param url
-     * @return
+     * @param url the URL of Soundbank
+     * @return {@link jp.kshoji.javax.sound.midi.Soundbank}
      * @throws InvalidMidiDataException
      * @throws IOException
      */
@@ -259,7 +263,8 @@ public final class MidiSystem {
     private static final Set<Synthesizer> synthesizers = new HashSet<Synthesizer>();
 
     /**
-     * Obtains {@link jp.kshoji.javax.sound.midi.Synthesizer} registered by {@link #registerSynthesizer(Synthesizer)}
+     * Obtain {@link jp.kshoji.javax.sound.midi.Synthesizer} registered by {@link #registerSynthesizer(Synthesizer)}
+     *
      * @return a Synthesizer, null if instance has not registered
      * @throws MidiUnavailableException
      */
@@ -277,8 +282,9 @@ public final class MidiSystem {
     }
 
     /**
-     * Registers a {@link jp.kshoji.javax.sound.midi.Synthesizer} instance.
-     * @param synthesizer
+     * Register the {@link jp.kshoji.javax.sound.midi.Synthesizer} instance to the {@link MidiSystem}.
+     *
+     * @param synthesizer the {@link jp.kshoji.javax.sound.midi.Synthesizer} instance
      */
     public static void registerSynthesizer(Synthesizer synthesizer) {
         if (synthesizer != null) {
@@ -287,10 +293,10 @@ public final class MidiSystem {
     }
 
 	/**
-	 * get the {@link MidiFileFormat} information of the specified File.
+	 * Get the {@link MidiFileFormat} information of the specified File.
 	 * 
-	 * @param file
-	 * @return
+	 * @param file the SMF
+	 * @return the {@link MidiFileFormat} information
 	 * @throws InvalidMidiDataException
 	 * @throws IOException
 	 */
@@ -300,10 +306,10 @@ public final class MidiSystem {
 	}
 
 	/**
-	 * get the {@link MidiFileFormat} information in the specified input stream.
+	 * Get the {@link MidiFileFormat} information in the specified input stream.
 	 * 
-	 * @param stream
-	 * @return
+	 * @param stream the the input stream of SMF
+     * @return the {@link MidiFileFormat} information
 	 * @throws InvalidMidiDataException
 	 * @throws IOException
 	 */
@@ -313,10 +319,10 @@ public final class MidiSystem {
 	}
 
 	/**
-	 * get the {@link MidiFileFormat} information in the specified URL.
+	 * Get the {@link MidiFileFormat} information in the specified URL.
 	 * 
-	 * @param url
-	 * @return
+	 * @param url the URL of SMF
+     * @return the {@link MidiFileFormat} information
 	 * @throws InvalidMidiDataException
 	 * @throws IOException
 	 */
@@ -326,9 +332,9 @@ public final class MidiSystem {
 	}
 
 	/**
-	 * get the set of SMF types that the library can write
+	 * Get the set of SMF types that the library can write
 	 * 
-	 * @return
+	 * @return the set of SMF types
 	 */
 	public static int[] getMidiFileTypes() {
 		StandardMidiFileWriter standardMidiFileWriter = new StandardMidiFileWriter();
@@ -336,10 +342,10 @@ public final class MidiSystem {
 	}
 
 	/**
-	 * get the set of SMF types that the library can write from the {@link Sequence}
+	 * Get the set of SMF types that the library can write from the {@link Sequence}
 	 * 
-	 * @param sequence
-	 * @return
+	 * @param sequence the {@link Sequence}
+	 * @return the set of SMF types
 	 */
 	public static int[] getMidiFileTypes(Sequence sequence) {
 		StandardMidiFileWriter standardMidiFileWriter = new StandardMidiFileWriter();
@@ -347,10 +353,10 @@ public final class MidiSystem {
 	}
 	
 	/**
-	 * check if the specified SMF fileType is available
+	 * Check if the specified SMF fileType is available
 	 * 
-	 * @param fileType
-	 * @return
+	 * @param fileType the fileType of SMF
+	 * @return true if the fileType is available
 	 */
 	public static boolean isFileTypeSupported(int fileType) {
 		StandardMidiFileWriter standardMidiFileWriter = new StandardMidiFileWriter();
@@ -358,11 +364,11 @@ public final class MidiSystem {
 	}
 
 	/**
-	 * check if the specified SMF fileType is available from the {@link Sequence}
+	 * Check if the specified SMF fileType is available from the {@link Sequence}
 	 * 
-	 * @param fileType
-	 * @param sequence
-	 * @return
+	 * @param fileType the fileType of {@link Sequence}
+	 * @param sequence the {@link Sequence}
+     * @return true if the fileType is available
 	 */
 	public static boolean isFileTypeSupported(int fileType, Sequence sequence) {
 		StandardMidiFileWriter standardMidiFileWriter = new StandardMidiFileWriter();
@@ -370,12 +376,12 @@ public final class MidiSystem {
 	}
 
 	/**
-	 * write sequence to the specified {@link File} as SMF
+	 * Write sequence to the specified {@link File} as SMF
 	 * 
-	 * @param sequence
-	 * @param fileType
-	 * @param file
-	 * @return
+	 * @param sequence the {@link Sequence}
+	 * @param fileType the fileType of {@link Sequence}
+	 * @param file the {@link File} to write
+	 * @return the file length
 	 * @throws IOException
 	 */
     public static int write(Sequence sequence, int fileType, File file) throws IOException {
@@ -384,12 +390,12 @@ public final class MidiSystem {
 	}
 
 	/**
-	 * write sequence to the specified {@link OutputStream} as SMF
-	 * 
-	 * @param sequence
-	 * @param fileType
-	 * @param outputStream
-	 * @return
+	 * Write sequence to the specified {@link OutputStream} as SMF
+	 *
+     * @param sequence the {@link Sequence}
+     * @param fileType the fileType of {@link Sequence}
+	 * @param outputStream the {@link OutputStream} to write
+     * @return the file length
 	 * @throws IOException
 	 */
     public static int write(Sequence sequence, int fileType, OutputStream outputStream) throws IOException {

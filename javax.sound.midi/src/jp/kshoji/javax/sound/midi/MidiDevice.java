@@ -2,7 +2,18 @@ package jp.kshoji.javax.sound.midi;
 
 import java.util.List;
 
+/**
+ * Interface for MIDI Device
+ *
+ * @author K.Shoji
+ */
 public interface MidiDevice {
+
+    /**
+     * Get the device information
+     *
+     * @return the device information
+     */
 	Info getDeviceInfo();
 
 	/**
@@ -20,7 +31,7 @@ public interface MidiDevice {
 	/**
 	 * Check if the {@link MidiDevice} opened.
 	 * 
-	 * @return
+	 * @return true if already opened
 	 */
 	boolean isOpen();
 
@@ -33,49 +44,49 @@ public interface MidiDevice {
 	/**
 	 * Get the number of the {@link Receiver}s. 
 	 * 
-	 * @return
+	 * @return the number of the {@link Receiver}s.
 	 */
 	int getMaxReceivers();
 
 	/**
 	 * Get the number of the {@link Transmitter}s. 
 	 * 
-	 * @return
+	 * @return the number of the {@link Transmitter}s.
 	 */
 	int getMaxTransmitters();
 
 	/**
-	 * Get the default {@link Receiver}
+	 * Get the default {@link Receiver}.
 	 * 
-	 * @return
+	 * @return the default {@link Receiver}.
 	 * @throws MidiUnavailableException
 	 */
 	Receiver getReceiver() throws MidiUnavailableException;
 
 	/**
-	 * Get the all of {@link Receiver}s
+	 * Get the all of {@link Receiver}s.
 	 * 
-	 * @return
+	 * @return the all of {@link Receiver}s.
 	 */
 	List<Receiver> getReceivers();
 
 	/**
-	 * Get the default {@link Transmitter}
+	 * Get the default {@link Transmitter}.
 	 * 
-	 * @return
+	 * @return the default {@link Transmitter}.
 	 * @throws MidiUnavailableException
 	 */
 	Transmitter getTransmitter() throws MidiUnavailableException;
 
 	/**
-	 * Get the all of {@link Transmitter}s
+	 * Get the all of {@link Transmitter}s.
 	 * 
-	 * @return
+	 * @return the all of {@link Transmitter}s.
 	 */
 	List<Transmitter> getTransmitters();
 
 	/**
-	 * Represents {@link MidiDevice}'s informations
+	 * Represents the {@link MidiDevice}'s information
 	 *
 	 * @author K.Shoji
 	 */
@@ -95,7 +106,7 @@ public interface MidiDevice {
 		/**
 		 * Get the name of {@link MidiDevice}
 		 * 
-		 * @return
+		 * @return the name of {@link MidiDevice}
 		 */
 		public final String getName() {
 			return name;
@@ -104,7 +115,7 @@ public interface MidiDevice {
 		/**
 		 * Get the vendor of {@link MidiDevice}
 		 * 
-		 * @return
+		 * @return the vendor of {@link MidiDevice}
 		 */
 		public final String getVendor() {
 			return vendor;
@@ -113,7 +124,7 @@ public interface MidiDevice {
 		/**
 		 * Get the description of {@link MidiDevice}
 		 * 
-		 * @return
+		 * @return the description of {@link MidiDevice}
 		 */
 		public final String getDescription() {
 			return description;
@@ -122,7 +133,7 @@ public interface MidiDevice {
 		/**
 		 * Get the version of {@link MidiDevice}
 		 * 
-		 * @return
+		 * @return the version of {@link MidiDevice}
 		 */
 		public final String getVersion() {
 			return version;

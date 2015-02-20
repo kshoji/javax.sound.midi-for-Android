@@ -1,15 +1,26 @@
 package jp.kshoji.javax.sound.midi;
 
+/**
+ * Abstract class for MIDI Message
+ *
+ * @author K.Shoji
+ */
 public abstract class MidiMessage implements Cloneable {
 	protected byte[] data;
 
+    /**
+     * Constructor with the raw data
+     *
+     * @param data the raw data
+     */
 	protected MidiMessage(byte[] data) {
 		this.data = data;
 	}
 
 	/**
-	 * 
-	 * @param data
+     * Constructor with the raw data, and its length
+	 *
+	 * @param data the raw data
 	 * @param length unused parameter. Use always data.length
 	 * @throws InvalidMidiDataException
 	 */
@@ -20,6 +31,11 @@ public abstract class MidiMessage implements Cloneable {
 		System.arraycopy(data, 0, this.data, 0, data.length);
 	}
 
+    /**
+     * Get the message source data
+     *
+     * @return the message source data
+     */
 	public byte[] getMessage() {
 		if (data == null) {
 			return null;
@@ -29,6 +45,11 @@ public abstract class MidiMessage implements Cloneable {
 		return resultArray;
 	}
 
+    /**
+     * Get the status of the {@link MidiMessage}
+     *
+     * @return the status
+     */
 	public int getStatus() {
 		if (data != null && data.length > 0) {
 			return (data[0] & 0xff);
@@ -36,6 +57,11 @@ public abstract class MidiMessage implements Cloneable {
 		return 0;
 	}
 
+    /**
+     * Get the length of the {@link MidiMessage}
+     *
+     * @return the length
+     */
 	public int getLength() {
 		if (data == null) {
 			return 0;
@@ -43,6 +69,12 @@ public abstract class MidiMessage implements Cloneable {
 		return data.length;
 	}
 
+    /**
+     * Convert the byte array to the hex dumped string
+     *
+     * @param src the byte array
+     * @return hex dumped string
+     */
 	static String toHexString(byte[] src) {
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("[");
@@ -51,7 +83,7 @@ public abstract class MidiMessage implements Cloneable {
 			if (needComma) {
 				buffer.append(", ");
 			}
-			buffer.append(String.format("%02x", Integer.valueOf(srcByte & 0xff)));
+			buffer.append(String.format("%02x", srcByte & 0xff));
 			needComma = true;
 		}
 		buffer.append("]");
@@ -64,9 +96,10 @@ public abstract class MidiMessage implements Cloneable {
 		return getClass().getName() + ":" + toHexString(data);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#clone()
-	 */
+    /**
+     * Clone the object
+     *
+     * @return the clone of this object instance
+     */
 	public abstract Object clone();
 }

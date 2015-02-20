@@ -100,7 +100,7 @@ public class SequencerImpl implements Sequencer {
         /**
          * Set current tick position
          *
-         * @param tick
+         * @param tick current tick position
          */
         public void setTickPosition(long tick) {
             tickPosition = tick;
@@ -143,7 +143,7 @@ public class SequencerImpl implements Sequencer {
                 Set<MidiEvent> eventToRemoval = new HashSet<MidiEvent>();
                 for (int trackIndex = 0; trackIndex < track.size(); trackIndex++) {
                     MidiEvent midiEvent = track.get(trackIndex);
-                    if (isRecordable(recordEndedTime, recordEnableChannels, midiEvent) && //
+                    if (isRecordable(recordEnableChannels, midiEvent) && //
                             midiEvent.getTick() >= recordingStartedTime && midiEvent.getTick() <= recordEndedTime) { // recorded time
                         eventToRemoval.add(midiEvent);
                     }
@@ -155,7 +155,7 @@ public class SequencerImpl implements Sequencer {
 
                 // add recorded events
                 for (int eventIndex = 0; eventIndex < recordingTrack.size(); eventIndex++) {
-                    if (isRecordable(recordEndedTime, recordEnableChannels, recordingTrack.get(eventIndex))) {
+                    if (isRecordable(recordEnableChannels, recordingTrack.get(eventIndex))) {
                         track.add(recordingTrack.get(eventIndex));
                     }
                 }
@@ -209,9 +209,9 @@ public class SequencerImpl implements Sequencer {
         }
 
         /**
-         * Process MidiMessage and fire events to registered event listeners.
+         * Process the specified {@link MidiMessage} and fire events to registered event listeners.
          *
-         * @param message
+         * @param message the {@link MidiMessage}
          */
         void fireEventListeners(MidiMessage message) {
             if (message instanceof MetaMessage) {
@@ -220,7 +220,7 @@ public class SequencerImpl implements Sequencer {
                         for (MetaEventListener metaEventListener : metaEventListeners) {
                             metaEventListener.meta((MetaMessage) message);
                         }
-                    } catch (ConcurrentModificationException cme) {
+                    } catch (ConcurrentModificationException ignored) {
                         // FIXME why this exception will be thrown? ... ignore it.
                     }
                 }
@@ -243,11 +243,6 @@ public class SequencerImpl implements Sequencer {
             }
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see java.lang.Thread#run()
-         */
         @Override
         public void run() {
             super.run();
@@ -410,9 +405,9 @@ public class SequencerImpl implements Sequencer {
         }
 
         /**
-         * Processes the tempo change events
+         * Process the tempo change events
          *
-         * @param metaMessage
+         * @param metaMessage the {@link MetaMessage}
          * @return true if the tempo changed
          */
         private boolean processTempoChange(MetaMessage metaMessage) {
@@ -452,12 +447,11 @@ public class SequencerImpl implements Sequencer {
         /**
          * Check if the event can be recorded
          *
-         * @param recordEndedTime
-         * @param recordEnableChannels
-         * @param midiEvent
+         * @param recordEnableChannels the channel IDs that are able to record.
+         * @param midiEvent the {@link MidiEvent}
          * @return true if the event can be recorded
          */
-        private boolean isRecordable(long recordEndedTime, Set<Integer> recordEnableChannels, MidiEvent midiEvent) {
+        private boolean isRecordable(Set<Integer> recordEnableChannels, MidiEvent midiEvent) {
             if (recordEnableChannels == null) {
                 return false;
             }
@@ -486,28 +480,16 @@ public class SequencerImpl implements Sequencer {
     }
 
     /**
-     * Create {@link SequencerImpl} instance.
-     *
-     * @throws MidiUnavailableException
+     * Constructor
      */
-    public SequencerImpl() throws MidiUnavailableException {
+    public SequencerImpl() {
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.MidiDevice#getDeviceInfo()
-     */
     @Override
     public Info getDeviceInfo() {
         return new Info("Sequencer", "jp.kshoji", "Android MIDI Sequencer", "0.1");
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.MidiDevice#open()
-     */
     @Override
     public void open() throws MidiUnavailableException {
         // open devices
@@ -537,11 +519,6 @@ public class SequencerImpl implements Sequencer {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.MidiDevice#close()
-     */
     @Override
     public void close() {
         // FIXME frequently calling 'close and open' causes app freeze(can't stop playing)
@@ -577,21 +554,11 @@ public class SequencerImpl implements Sequencer {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.MidiDevice#isOpen()
-     */
     @Override
     public boolean isOpen() {
         return isOpen;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.MidiDevice#getMaxReceivers()
-     */
     @Override
     public int getMaxReceivers() {
         synchronized (receivers) {
@@ -599,11 +566,6 @@ public class SequencerImpl implements Sequencer {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.MidiDevice#getMaxTransmitters()
-     */
     @Override
     public int getMaxTransmitters() {
         synchronized (transmitters) {
@@ -611,11 +573,6 @@ public class SequencerImpl implements Sequencer {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.MidiDevice#getReceiver()
-     */
     @Override
     public Receiver getReceiver() throws MidiUnavailableException {
         synchronized (receivers) {
@@ -627,11 +584,6 @@ public class SequencerImpl implements Sequencer {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.MidiDevice#getReceivers()
-     */
     @Override
     public List<Receiver> getReceivers() {
         synchronized (receivers) {
@@ -639,11 +591,6 @@ public class SequencerImpl implements Sequencer {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.MidiDevice#getTransmitter()
-     */
     @Override
     public Transmitter getTransmitter() throws MidiUnavailableException {
         synchronized (transmitters) {
@@ -655,11 +602,6 @@ public class SequencerImpl implements Sequencer {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.MidiDevice#getTransmitters()
-     */
     @Override
     public List<Transmitter> getTransmitters() {
         synchronized (transmitters) {
@@ -667,11 +609,6 @@ public class SequencerImpl implements Sequencer {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#addControllerEventListener(jp.kshoji.javax.sound.midi.ControllerEventListener, int[])
-     */
     @Override
     public int[] addControllerEventListener(ControllerEventListener listener, int[] controllers) {
         synchronized (controllerEventListenerMap) {
@@ -687,11 +624,6 @@ public class SequencerImpl implements Sequencer {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#removeControllerEventListener(jp.kshoji.javax.sound.midi.ControllerEventListener, int[])
-     */
     @Override
     public int[] removeControllerEventListener(ControllerEventListener listener, int[] controllers) {
         synchronized (controllerEventListenerMap) {
@@ -702,7 +634,7 @@ public class SequencerImpl implements Sequencer {
                     listeners.remove(listener);
                 } else {
                     // remaining controller id
-                    resultList.add(Integer.valueOf(controllerId));
+                    resultList.add(controllerId);
                 }
                 controllerEventListenerMap.put(controllerId, listeners);
             }
@@ -715,17 +647,12 @@ public class SequencerImpl implements Sequencer {
                     continue;
                 }
 
-                resultPrimitiveArray[i] = resultValue.intValue();
+                resultPrimitiveArray[i] = resultValue;
             }
             return resultPrimitiveArray;
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#addMetaEventListener(jp.kshoji.javax.sound.midi.MetaEventListener)
-     */
     @Override
     public boolean addMetaEventListener(MetaEventListener listener) {
         // return true if registered successfully
@@ -734,11 +661,6 @@ public class SequencerImpl implements Sequencer {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#removeMetaEventListener(jp.kshoji.javax.sound.midi.MetaEventListener)
-     */
     @Override
     public void removeMetaEventListener(MetaEventListener listener) {
         synchronized (metaEventListeners) {
@@ -746,21 +668,11 @@ public class SequencerImpl implements Sequencer {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#getLoopCount()
-     */
     @Override
     public int getLoopCount() {
         return loopCount;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#setLoopCount(int)
-     */
     @Override
     public void setLoopCount(int count) {
         if (count != LOOP_CONTINUOUSLY && count < 0) {
@@ -769,21 +681,11 @@ public class SequencerImpl implements Sequencer {
         loopCount = count;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#getLoopStartPoint()
-     */
     @Override
     public long getLoopStartPoint() {
         return loopStartPoint;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#setLoopStartPoint(long)
-     */
     @Override
     public void setLoopStartPoint(long tick) {
         if (tick > getTickLength() || (loopEndPoint != -1 && tick > loopEndPoint) || tick < 0) {
@@ -792,21 +694,11 @@ public class SequencerImpl implements Sequencer {
         loopStartPoint = tick;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#getLoopEndPoint()
-     */
     @Override
     public long getLoopEndPoint() {
         return loopEndPoint;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#setLoopEndPoint(long)
-     */
     @Override
     public void setLoopEndPoint(long tick) {
         if (tick > getTickLength() || (tick != -1 && loopStartPoint > tick) || tick < -1) {
@@ -815,21 +707,11 @@ public class SequencerImpl implements Sequencer {
         loopEndPoint = tick;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#getMasterSyncMode()
-     */
     @Override
     public SyncMode getMasterSyncMode() {
         return masterSyncMode;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#setMasterSyncMode(jp.kshoji.javax.sound.midi.Sequencer.SyncMode)
-     */
     @Override
     public void setMasterSyncMode(SyncMode sync) {
         for (SyncMode availableMode : getMasterSyncModes()) {
@@ -839,31 +721,16 @@ public class SequencerImpl implements Sequencer {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#getMasterSyncModes()
-     */
     @Override
     public SyncMode[] getMasterSyncModes() {
         return MASTER_SYNC_MODES;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#getMicrosecondPosition()
-     */
     @Override
     public long getMicrosecondPosition() {
         return (long) (getTickPosition() * getTicksPerMicrosecond());
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#setMicrosecondPosition(long)
-     */
     @Override
     public void setMicrosecondPosition(long microseconds) {
         setTickPosition((long) (getTicksPerMicrosecond() * microseconds));
@@ -872,7 +739,7 @@ public class SequencerImpl implements Sequencer {
     /**
      * convert parameter from microseconds to tick
      *
-     * @return
+     * @return ticks per microsecond
      */
     float getTicksPerMicrosecond() {
         float ticksPerMicrosecond;
@@ -887,62 +754,32 @@ public class SequencerImpl implements Sequencer {
         return ticksPerMicrosecond;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#getMicrosecondLength()
-     */
     @Override
     public long getMicrosecondLength() {
         return sequence.getMicrosecondLength();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#getSequence()
-     */
     @Override
     public Sequence getSequence() {
         return sequence;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#setSequence(java.io.InputStream)
-     */
     @Override
     public void setSequence(InputStream stream) throws IOException, InvalidMidiDataException {
         setSequence(new StandardMidiFileReader().getSequence(stream));
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#setSequence(jp.kshoji.javax.sound.midi.Sequence)
-     */
     @Override
     public void setSequence(Sequence sequence) throws InvalidMidiDataException {
         this.sequence = sequence;
         sequencerThread.needRefreshPlayingTrack = true;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#getSlaveSyncMode()
-     */
     @Override
     public SyncMode getSlaveSyncMode() {
         return slaveSyncMode;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#setSlaveSyncMode(jp.kshoji.javax.sound.midi.Sequencer.SyncMode)
-     */
     @Override
     public void setSlaveSyncMode(SyncMode sync) {
         for (SyncMode availableMode : getSlaveSyncModes()) {
@@ -952,31 +789,16 @@ public class SequencerImpl implements Sequencer {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#getSlaveSyncModes()
-     */
     @Override
     public SyncMode[] getSlaveSyncModes() {
         return SLAVE_SYNC_MODES;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#getTempoFactor()
-     */
     @Override
     public float getTempoFactor() {
         return tempoFactor;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#setTempoFactor(float)
-     */
     @Override
     public void setTempoFactor(float factor) {
         if (factor <= 0f) {
@@ -986,51 +808,26 @@ public class SequencerImpl implements Sequencer {
         tempoFactor = factor;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#getTempoInBPM()
-     */
     @Override
     public float getTempoInBPM() {
         return tempoInBPM;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#setTempoInBPM(float)
-     */
     @Override
     public void setTempoInBPM(float bpm) {
         tempoInBPM = bpm;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#getTempoInMPQ()
-     */
     @Override
     public float getTempoInMPQ() {
         return 60000000f / tempoInBPM;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#setTempoInMPQ(float)
-     */
     @Override
     public void setTempoInMPQ(float mpq) {
         tempoInBPM = 60000000f / mpq;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#getTickLength()
-     */
     @Override
     public long getTickLength() {
         if (sequence == null) {
@@ -1039,71 +836,36 @@ public class SequencerImpl implements Sequencer {
         return sequence.getTickLength();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#getTickPosition()
-     */
     @Override
     public long getTickPosition() {
         return sequencerThread.getTickPosition();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#setTickPosition(long)
-     */
     @Override
     public void setTickPosition(long tick) {
         sequencerThread.setTickPosition(tick);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#getTrackMute(int)
-     */
     @Override
     public boolean getTrackMute(int track) {
         return trackMute.get(track);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#setTrackMute(int, boolean)
-     */
     @Override
     public void setTrackMute(int track, boolean mute) {
         trackMute.put(track, mute);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#getTrackSolo(int)
-     */
     @Override
     public boolean getTrackSolo(int track) {
         return trackSolo.get(track);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#setTrackSolo(int, boolean)
-     */
     @Override
     public void setTrackSolo(int track, boolean solo) {
         trackSolo.put(track, solo);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#recordDisable(jp.kshoji.javax.sound.midi.Track)
-     */
     @Override
     public void recordDisable(Track track) {
         if (track == null) {
@@ -1118,11 +880,6 @@ public class SequencerImpl implements Sequencer {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#recordEnable(jp.kshoji.javax.sound.midi.Track, int)
-     */
     @Override
     public void recordEnable(Track track, int channel) {
         Set<Integer> trackRecordEnable = recordEnable.get(track);
@@ -1133,20 +890,15 @@ public class SequencerImpl implements Sequencer {
         if (channel == -1) {
             for (int i = 0; i < 16; i++) {
                 // record to the all channels
-                trackRecordEnable.add(Integer.valueOf(i));
+                trackRecordEnable.add(i);
             }
             recordEnable.put(track, trackRecordEnable);
         } else if (channel >= 0 && channel < 16) {
-            trackRecordEnable.add(Integer.valueOf(channel));
+            trackRecordEnable.add(channel);
             recordEnable.put(track, trackRecordEnable);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#startRecording()
-     */
     @Override
     public void startRecording() {
         // start playing AND recording
@@ -1154,53 +906,28 @@ public class SequencerImpl implements Sequencer {
         sequencerThread.startPlaying();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#isRecording()
-     */
     @Override
     public boolean isRecording() {
         return isRecording;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#stopRecording()
-     */
     @Override
     public void stopRecording() {
         // stop recording
         sequencerThread.stopRecording();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#start()
-     */
     @Override
     public void start() {
         // start playing
         sequencerThread.startPlaying();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#isRunning()
-     */
     @Override
     public boolean isRunning() {
         return isRunning;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see jp.kshoji.javax.sound.midi.Sequencer#stop()
-     */
     @Override
     public void stop() {
         // stop playing AND recording

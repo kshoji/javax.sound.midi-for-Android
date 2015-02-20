@@ -8,10 +8,11 @@ import java.util.EventListener;
  * @author K.Shoji
  */
 public interface ControllerEventListener extends EventListener {
+
 	/**
 	 * Called at {@link ShortMessage} event has fired
 	 * 
-	 * @param event
+	 * @param event the source message
 	 */
 	void controlChange(ShortMessage event);
 }

@@ -10,8 +10,9 @@ import java.util.EventListener;
  * @author K.Shoji
  */
 public interface Sequencer extends MidiDevice {
+
 	/**
-	 * Loops eternally.
+	 * Loop eternally.
 	 * 
 	 * @see Sequencer#setLoopCount(int)
 	 */
@@ -71,70 +72,70 @@ public interface Sequencer extends MidiDevice {
     /**
      * Get the available {@link SyncMode} for master.
      * 
-     * @return
+     * @return the available {@link SyncMode} for master.
      */
     Sequencer.SyncMode[] getMasterSyncModes();
 
     /**
      * Get the {@link SyncMode} for master.
      * 
-     * @return
+     * @return the {@link SyncMode} for master.
      */
     Sequencer.SyncMode getMasterSyncMode();
 
     /**
      * Set the {@link SyncMode} for master.
      * 
-     * @param sync
+     * @param sync the {@link SyncMode} for master.
      */
     void setMasterSyncMode(Sequencer.SyncMode sync);
     
     /**
-     * Get the available {@link SyncMode} for master.
+     * Get the available {@link SyncMode} for slave.
      * 
-     * @return
+     * @return the available {@link SyncMode} for slave.
      */
     Sequencer.SyncMode[] getSlaveSyncModes();
 
     /**
      * Get the {@link SyncMode} for slave.
      * 
-     * @return
+     * @return the {@link SyncMode} for slave.
      */
     Sequencer.SyncMode getSlaveSyncMode();
     
     /**
      * Set the {@link SyncMode} for slave.
-     * @param sync
+     * @param sync the {@link SyncMode} for slave.
      */
     void setSlaveSyncMode(Sequencer.SyncMode sync);
 
     /**
-     * Get {@link Sequence}
+     * Get the {@link Sequence}
      * 
-     * @return
+     * @return the {@link Sequence}
      */
     Sequence getSequence();
    
     /**
-     * Load {@link Sequence} from stream.
+     * Load a {@link Sequence} from stream.
      * 
-     * @param stream
+     * @param stream sequence source
      * @throws IOException
      * @throws InvalidMidiDataException
      */
     void setSequence(InputStream stream) throws IOException, InvalidMidiDataException;
 
     /**
-     * Set {@link Sequence} for the {@link Sequencer}
+     * Set the {@link Sequence} for the {@link Sequencer}
      * 
-     * @param sequence
+     * @param sequence the {@link Sequence}
      * @throws InvalidMidiDataException
      */
     void setSequence(Sequence sequence) throws InvalidMidiDataException;
 
     /**
-     * Add {@link EventListener} for {@link ShortMessage.CONTROL_CHANGE}
+     * Add {@link EventListener} for {@link ShortMessage#CONTROL_CHANGE}
      * 
      * @param listener event listener
      * @param controllers controller codes
@@ -143,7 +144,7 @@ public interface Sequencer extends MidiDevice {
     int[] addControllerEventListener(ControllerEventListener listener, int[] controllers);
 
     /**
-     * Remove {@link EventListener} for {@link ShortMessage.CONTROL_CHANGE}
+     * Remove {@link EventListener} for {@link ShortMessage#CONTROL_CHANGE}
      * 
      * @param listener event listener
      * @param controllers controller codes
@@ -169,36 +170,41 @@ public interface Sequencer extends MidiDevice {
     /**
      * Get if the {@link Sequencer} is recording.
      * 
-     * @return
+     * @return true if the {@link Sequencer} is recording
      */
     boolean isRecording();
 
     /**
      * Get if the {@link Sequencer} is playing OR recording.
      * 
-     * @return
+     * @return true if the {@link Sequencer} is playing OR recording
      */
     boolean isRunning();
 
     /**
-     * Set {@link Track} to disable recording
+     * Set the {@link Track} to disable recording
      * 
-     * @param track
+     * @param track the {@link Track} to disable recording
      */
     void recordDisable(Track track);
 
     /***
-     * Set {@link Track} to enable recording on the specified channel.
+     * Set the {@link Track} to enable recording on the specified channel.
      * 
-     * @param track
-     * @param channel
+     * @param track the {@link Track}
+     * @param channel the channel, 0-15
      */
     void recordEnable(Track track, int channel);
     
     /**
-     * Get count of loop.
+     * Get the count of loop.
      * 
-     * @return
+     * @return the count of loop
+     * <ul>
+     * <li>{@link #LOOP_CONTINUOUSLY}: play loops eternally</li>
+     * <li>0: play once(no loop)</li>
+     * <li>1: play twice(loop once)</li>
+     * </ul>
      */
     int getLoopCount();
 
@@ -229,9 +235,9 @@ public interface Sequencer extends MidiDevice {
     void setLoopStartPoint(long tick);
 
     /**
-     * Get end point(ticks) of loop.
+     * Get the end point(ticks) of loop.
      * 
-     * @return
+     * @return the end point(ticks) of loop
      */
     long getLoopEndPoint();
     
@@ -245,7 +251,7 @@ public interface Sequencer extends MidiDevice {
     /**
      * Get the tempo factor.
      * 
-     * @return
+     * @return the tempo factor
      */
     float getTempoFactor();
     
@@ -266,7 +272,7 @@ public interface Sequencer extends MidiDevice {
     /**
      * Set the tempo in the Beats per minute.
      * 
-     * @param bpm
+     * @param bpm the tempo in the Beats per minute
      */
     void setTempoInBPM(float bpm);
 
@@ -275,68 +281,80 @@ public interface Sequencer extends MidiDevice {
     /**
      * Set the tempos in the microseconds per quarter note.
      * 
-     * @param mpq
+     * @param mpq the tempos in the microseconds per quarter note
      */
     void setTempoInMPQ(float mpq);
 
     /**
      * Get the {@link Sequence} length in ticks.
      * 
-     * @return
+     * @return the {@link Sequence} length in ticks
      */
     long getTickLength();
 
     /**
      * Get the {@link Sequence} length in microseconds.
      * 
-     * @return
+     * @return the {@link Sequence} length in microseconds
      */
     long getMicrosecondLength();
     
     /**
      * Get the current tick position.
      * 
-     * @return
+     * @return the current tick position
      */
     long getTickPosition();
     
     /**
      * Set the current tick position.
      * 
-     * @param tick
+     * @param tick the current tick position
      */
     void setTickPosition(long tick);
 
     /**
-     * Get current microsecond position.
+     * Get the current microsecond position.
      */
     @Override
     long getMicrosecondPosition();
 
     /**
-     * Set current microsecond position.
+     * Set the current microsecond position.
      * 
-     * @param microseconds
+     * @param microseconds the current microsecond position
      */
     void setMicrosecondPosition(long microseconds);
 
+    /**
+     * Get if the track is mute on the playback.
+     *
+     * @param track the track number
+     * @return true if the track is mute on the playback
+     */
     boolean getTrackMute(int track);
     
     /**
-     * Set track to mute on the playback.
+     * Set the track to mute on the playback.
      * 
-     * @param track
-     * @param mute
+     * @param track the track number
+     * @param mute true to set mute the track
      */
     void setTrackMute(int track, boolean mute);
 
+    /**
+     * Get if the track is solo on the playback.
+     *
+     * @param track the track number
+     * @return true if the track is solo on the playback.
+     */
     boolean getTrackSolo(int track);
     
     /**
      * Set track to solo on the playback.
      * 
-     * @param track
-     * @param solo
+     * @param track the track number
+     * @param solo true to set solo the track
      */
     void setTrackSolo(int track, boolean solo);
 

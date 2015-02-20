@@ -2,6 +2,11 @@ package jp.kshoji.javax.sound.midi;
 
 import java.util.Vector;
 
+/**
+ * Represents MIDI Sequence
+ *
+ * @author K.Shoji
+ */
 public class Sequence {
 	public static final float PPQ = 0.0f;
 	public static final float SMPTE_24 = 24.0f;
@@ -15,8 +20,8 @@ public class Sequence {
 
 	/**
 	 * Check if the divisionType supported
-	 * @param divisionType
-	 * @return
+	 * @param divisionType the divisionType
+	 * @return true if the specified divisionType is supported
 	 */
 	private static boolean isSupportingDivisionType(float divisionType) {
 		return divisionType == Sequence.PPQ || divisionType == Sequence.SMPTE_24 || divisionType == Sequence.SMPTE_25 || divisionType == Sequence.SMPTE_30 || divisionType == Sequence.SMPTE_30DROP;
@@ -57,12 +62,8 @@ public class Sequence {
 	 * @throws InvalidMidiDataException
 	 */
 	public Sequence(float divisionType, int resolution, int numberOfTracks) throws InvalidMidiDataException {
-		if (isSupportingDivisionType(divisionType) == false) {
-			throw new InvalidMidiDataException("Unsupported division type: " + divisionType);
-		}
-		this.divisionType = divisionType;
-		this.resolution = resolution;
-		this.tracks = new Vector<Track>();
+        this(divisionType, resolution);
+
 		if (numberOfTracks > 0) {
 			for (int i = 0; i < numberOfTracks; i++) {
 				tracks.add(new Track());
@@ -71,9 +72,9 @@ public class Sequence {
 	}
 
 	/**
-	 * Create empty {@link Track}
+	 * Create an empty {@link Track}
 	 * 
-	 * @return
+	 * @return an empty {@link Track}
 	 */
 	public Track createTrack() {
 		/*
@@ -88,7 +89,7 @@ public class Sequence {
 	 * Delete specified {@link Track}
 	 * 
 	 * @param track to delete
-	 * @return
+	 * @return true if the track is successfully deleted
 	 */
 	public boolean deleteTrack(Track track) {
 		return tracks.remove(track);
@@ -97,7 +98,7 @@ public class Sequence {
 	/**
 	 * Get the divisionType of the {@link Sequence}
 	 * 
-	 * @return
+	 * @return the divisionType of the {@link Sequence}
 	 */
 	public float getDivisionType() {
 		return divisionType;
@@ -106,7 +107,7 @@ public class Sequence {
 	/**
 	 * Get the {@link Sequence} length in microseconds
 	 * 
-	 * @return {@link Sequence} length in microseconds
+	 * @return the {@link Sequence} length in microseconds
 	 */
 	public long getMicrosecondLength() {
 		return (long) (1000000.0f * getTickLength() / ((this.divisionType == 0.0f ? 2 : this.divisionType) * this.resolution * 1.0f));
@@ -115,7 +116,7 @@ public class Sequence {
 	/**
 	 * Get the resolution
 	 * 
-	 * @return resolution
+	 * @return the resolution
 	 */
 	public int getResolution() {
 		return resolution;
@@ -124,7 +125,7 @@ public class Sequence {
 	/**
 	 * Get the biggest tick length
 	 * 
-	 * @return tick
+	 * @return tick length
 	 */
 	public long getTickLength() {
 		/*
@@ -139,6 +140,7 @@ public class Sequence {
 
 	/**
 	 * Get the array of {@link Track}s
+     *
 	 * @return array of tracks
 	 */
 	public Track[] getTracks() {

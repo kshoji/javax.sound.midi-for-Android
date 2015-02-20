@@ -1,7 +1,7 @@
 package jp.kshoji.javax.sound.midi;
 
 /**
- * Represents a MIDI Event.
+ * Represents MIDI Event
  * 
  * @author K.Shoji
  */
@@ -13,7 +13,7 @@ public class MidiEvent {
     /**
      * Constructor
      * 
-     * @param message
+     * @param message the message
      * @param tick -1 if timeStamp not supported.
      */
     public MidiEvent(MidiMessage message, long tick) {
@@ -24,7 +24,7 @@ public class MidiEvent {
     /**
      * Get the {@link MidiDevice} of this {@link MidiEvent}
      * 
-     * @return
+     * @return the {@link MidiDevice} of this {@link MidiEvent}
      */
     public MidiMessage getMessage() {
         return message;
@@ -32,6 +32,7 @@ public class MidiEvent {
 
     /**
      * Get the timeStamp in tick
+     *
      * @return -1 if timeStamp not supported.
      */
     public long getTick() {
