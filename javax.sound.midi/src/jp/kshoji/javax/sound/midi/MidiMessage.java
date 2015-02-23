@@ -1,5 +1,8 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 /**
  * Abstract class for MIDI Message
  *
@@ -14,7 +17,7 @@ public abstract class MidiMessage implements Cloneable {
      *
      * @param data the raw data
      */
-	protected MidiMessage(byte[] data) {
+	protected MidiMessage(@Nullable byte[] data) {
 		this.data = data;
 
         if (data == null) {
@@ -31,12 +34,18 @@ public abstract class MidiMessage implements Cloneable {
 	 * @param length unused parameter. Use always data.length
 	 * @throws InvalidMidiDataException
 	 */
-	protected void setMessage(byte[] data, int length) throws InvalidMidiDataException {
-		if (this.data == null || this.data.length != data.length) {
-			this.data = new byte[data.length];
-		}
-        this.length = data.length;
-		System.arraycopy(data, 0, this.data, 0, data.length);
+    public void setMessage(@Nullable byte[] data, int length) throws InvalidMidiDataException {
+        if (data == null) {
+            this.data = null;
+            this.length = 0;
+        } else {
+            if (this.data.length != data.length) {
+                this.data = new byte[data.length];
+            }
+
+            this.length = data.length;
+            System.arraycopy(data, 0, this.data, 0, data.length);
+        }
 	}
 
     /**
@@ -44,10 +53,12 @@ public abstract class MidiMessage implements Cloneable {
      *
      * @return the message source data
      */
-	public byte[] getMessage() {
+    @Nullable
+    public byte[] getMessage() {
 		if (data == null) {
 			return null;
 		}
+
 		byte[] resultArray = new byte[data.length];
 		System.arraycopy(data, 0, resultArray, 0, data.length);
 		return resultArray;
@@ -59,10 +70,11 @@ public abstract class MidiMessage implements Cloneable {
      * @return the status
      */
 	public int getStatus() {
-		if (data != null && data.length > 0) {
-			return (data[0] & 0xff);
-		}
-		return 0;
+		if (data == null || data.length < 1) {
+            return 0;
+        }
+
+        return data[0] & 0xff;
 	}
 
     /**
@@ -74,6 +86,7 @@ public abstract class MidiMessage implements Cloneable {
 		if (data == null) {
 			return 0;
 		}
+
 		return data.length;
 	}
 
@@ -83,7 +96,8 @@ public abstract class MidiMessage implements Cloneable {
      * @param src the byte array
      * @return hex dumped string
      */
-	static String toHexString(byte[] src) {
+    @NonNull
+    static String toHexString(@Nullable byte[] src) {
         if (src == null) {
             return "null";
         }

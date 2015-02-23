@@ -1,5 +1,7 @@
 package jp.kshoji.javax.sound.midi.spi;
 
+import android.support.annotation.NonNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +26,8 @@ public abstract class MidiFileReader {
      * @throws InvalidMidiDataException
      * @throws IOException
      */
-	public abstract MidiFileFormat getMidiFileFormat(File file) throws InvalidMidiDataException, IOException;
+    @NonNull
+    public abstract MidiFileFormat getMidiFileFormat(@NonNull File file) throws InvalidMidiDataException, IOException;
 
     /**
      * Get the {@link MidiFileFormat} from the specified stream
@@ -34,7 +37,8 @@ public abstract class MidiFileReader {
      * @throws InvalidMidiDataException
      * @throws IOException
      */
-	public abstract MidiFileFormat getMidiFileFormat(InputStream stream) throws InvalidMidiDataException, IOException;
+    @NonNull
+    public abstract MidiFileFormat getMidiFileFormat(@NonNull InputStream stream) throws InvalidMidiDataException, IOException;
 
     /**
      * Get the {@link MidiFileFormat} from the specified URL
@@ -44,7 +48,8 @@ public abstract class MidiFileReader {
      * @throws InvalidMidiDataException
      * @throws IOException
      */
-	public abstract MidiFileFormat getMidiFileFormat(URL url) throws InvalidMidiDataException, IOException;
+    @NonNull
+    public abstract MidiFileFormat getMidiFileFormat(@NonNull URL url) throws InvalidMidiDataException, IOException;
 
     /**
      * Get the {@link Sequence} from the specified file
@@ -54,7 +59,8 @@ public abstract class MidiFileReader {
      * @throws InvalidMidiDataException
      * @throws IOException
      */
-	public abstract Sequence getSequence(File file) throws InvalidMidiDataException, IOException;
+    @NonNull
+    public abstract Sequence getSequence(@NonNull File file) throws InvalidMidiDataException, IOException;
 
     /**
      * Get the {@link Sequence} from the specified stream
@@ -64,7 +70,8 @@ public abstract class MidiFileReader {
      * @throws InvalidMidiDataException
      * @throws IOException
      */
-	public abstract Sequence getSequence(InputStream stream) throws InvalidMidiDataException, IOException;
+    @NonNull
+    public abstract Sequence getSequence(@NonNull InputStream stream) throws InvalidMidiDataException, IOException;
 
     /**
      * Get the {@link Sequence} from the specified URL
@@ -74,6 +81,7 @@ public abstract class MidiFileReader {
      * @throws InvalidMidiDataException
      * @throws IOException
      */
-	public abstract Sequence getSequence(URL url) throws InvalidMidiDataException, IOException;
+    @NonNull
+    public abstract Sequence getSequence(@NonNull URL url) throws InvalidMidiDataException, IOException;
 
 }

@@ -1,5 +1,7 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.NonNull;
+
 /**
  * Represents MIDI Short Message
  * 
@@ -42,7 +44,7 @@ public class ShortMessage extends MidiMessage {
 	 * 
 	 * @param data the raw data
 	 */
-	protected ShortMessage(byte[] data) {
+	protected ShortMessage(@NonNull byte[] data) {
 		super(data);
 	}
 

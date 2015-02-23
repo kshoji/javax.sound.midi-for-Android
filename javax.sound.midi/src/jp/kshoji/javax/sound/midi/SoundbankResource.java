@@ -1,5 +1,8 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 /**
  * Interface for MIDI Soundbank resource
  *
@@ -17,7 +20,7 @@ public abstract class SoundbankResource {
      * @param name the name of {@link SoundbankResource}
      * @param dataClass the class of data
      */
-    protected SoundbankResource(Soundbank soundbank, String name, Class<?> dataClass) {
+    protected SoundbankResource(@NonNull Soundbank soundbank, @NonNull String name, @NonNull Class<?> dataClass) {
         this.soundbank = soundbank;
         this.name = name;
         this.dataClass = dataClass;
@@ -28,6 +31,7 @@ public abstract class SoundbankResource {
      *
      * @return the data
      */
+    @Nullable
     public abstract Object getData();
 
     /**
@@ -35,6 +39,7 @@ public abstract class SoundbankResource {
      *
      * @return the class
      */
+    @Nullable
     public Class<?> getDataClass() {
         return dataClass;
     }
@@ -44,6 +49,7 @@ public abstract class SoundbankResource {
      *
      * @return the name
      */
+    @NonNull
     public String getName() {
         return name;
     }
@@ -53,6 +59,7 @@ public abstract class SoundbankResource {
      *
      * @return the Soundbank
      */
+    @NonNull
     public Soundbank getSoundbank() {
         return soundbank;
     }

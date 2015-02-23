@@ -1,5 +1,7 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.NonNull;
+
 /**
  * Represents MIDI Event
  * 
@@ -16,7 +18,7 @@ public class MidiEvent {
      * @param message the message
      * @param tick -1 if timeStamp not supported.
      */
-    public MidiEvent(MidiMessage message, long tick) {
+    public MidiEvent(@NonNull MidiMessage message, long tick) {
         this.message = message;
         this.tick = tick;
     }
@@ -26,6 +28,7 @@ public class MidiEvent {
      * 
      * @return the {@link MidiDevice} of this {@link MidiEvent}
      */
+    @NonNull
     public MidiMessage getMessage() {
         return message;
     }

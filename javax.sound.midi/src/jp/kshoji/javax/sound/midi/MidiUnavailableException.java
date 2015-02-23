@@ -1,5 +1,7 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.NonNull;
+
 /**
  * {@link Exception} thrown when unable to use {@link MidiDevice}s.
  *
@@ -20,7 +22,7 @@ public class MidiUnavailableException extends Exception {
      *
      * @param message the message
      */
-	public MidiUnavailableException(String message) {
+	public MidiUnavailableException(@NonNull String message) {
 		super(message);
 	}
 }

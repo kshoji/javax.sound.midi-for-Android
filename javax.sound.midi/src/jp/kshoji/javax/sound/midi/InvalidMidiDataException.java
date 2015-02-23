@@ -1,5 +1,7 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.NonNull;
+
 /**
  * {@link Exception} for invalid MIDI data.
  * 
@@ -20,7 +22,7 @@ public class InvalidMidiDataException extends Exception {
      *
      * @param message the message
      */
-	public InvalidMidiDataException(String message) {
+	public InvalidMidiDataException(@NonNull String message) {
 		super(message);
 	}
 }

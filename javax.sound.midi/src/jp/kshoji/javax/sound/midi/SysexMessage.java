@@ -1,5 +1,8 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 /**
  * Represents MIDI SysEx Message
  * 
@@ -19,7 +22,7 @@ public class SysexMessage extends MidiMessage {
 	 * 
 	 * @param data the SysEx data
 	 */
-	protected SysexMessage(byte[] data) {
+	protected SysexMessage(@NonNull byte[] data) {
 		super(data);
 	}
 
@@ -30,7 +33,7 @@ public class SysexMessage extends MidiMessage {
      * @param length the data length
      * @throws InvalidMidiDataException
      */
-	public SysexMessage(byte[] data, int length) throws InvalidMidiDataException {
+	public SysexMessage(@NonNull byte[] data, int length) throws InvalidMidiDataException {
 		super(null);
 		setMessage(data, length);
 	}
@@ -43,13 +46,17 @@ public class SysexMessage extends MidiMessage {
      * @param length unused parameter. Use always data.length
      * @throws InvalidMidiDataException
      */
-    public SysexMessage(int status, byte[] data, int length) throws InvalidMidiDataException {
+    public SysexMessage(int status, @NonNull byte[] data, int length) throws InvalidMidiDataException {
         super(null);
         setMessage(status, data, length);
     }
 
 	@Override
-	public void setMessage(byte[] data, int length) throws InvalidMidiDataException {
+	public void setMessage(@Nullable byte[] data, int length) throws InvalidMidiDataException {
+        if (data == null) {
+            throw new InvalidMidiDataException("SysexMessage data is null");
+        }
+
 		int status = (data[0] & 0xff);
 		if ((status != ShortMessage.START_OF_EXCLUSIVE) && (status != ShortMessage.END_OF_EXCLUSIVE)) {
 			throw new InvalidMidiDataException("Invalid status byte for SysexMessage: 0x" + Integer.toHexString(status));
@@ -65,7 +72,7 @@ public class SysexMessage extends MidiMessage {
 	 * @param length unused parameter. Use always data.length
 	 * @throws InvalidMidiDataException
 	 */
-	public void setMessage(int status, byte[] data, int length) throws InvalidMidiDataException {
+	public void setMessage(int status, @NonNull byte[] data, int length) throws InvalidMidiDataException {
 		if ((status != ShortMessage.START_OF_EXCLUSIVE) && (status != ShortMessage.END_OF_EXCLUSIVE)) {
 			throw new InvalidMidiDataException("Invalid status byte for SysexMessage: 0x" + Integer.toHexString(status));
 		}
@@ -85,7 +92,8 @@ public class SysexMessage extends MidiMessage {
 	 * 
 	 * @return SysEx data
 	 */
-	public byte[] getData() {
+    @NonNull
+    public byte[] getData() {
 		byte[] result = new byte[data.length];
 		System.arraycopy(data, 0, result, 0, result.length);
 		return result;
@@ -93,6 +101,6 @@ public class SysexMessage extends MidiMessage {
 
 	@Override
 	public Object clone() {
-		return new SysexMessage(getData());
+        return new SysexMessage(getData());
 	}
 }

@@ -1,5 +1,8 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.EventListener;
@@ -29,7 +32,7 @@ public interface Sequencer extends MidiDevice {
 
         private String name;
 
-        protected SyncMode(String name) {
+        protected SyncMode(@NonNull String name) {
             this.name = name;
         }
         
@@ -74,6 +77,7 @@ public interface Sequencer extends MidiDevice {
      * 
      * @return the available {@link SyncMode} for master.
      */
+    @NonNull
     Sequencer.SyncMode[] getMasterSyncModes();
 
     /**
@@ -81,6 +85,7 @@ public interface Sequencer extends MidiDevice {
      * 
      * @return the {@link SyncMode} for master.
      */
+    @NonNull
     Sequencer.SyncMode getMasterSyncMode();
 
     /**
@@ -88,13 +93,14 @@ public interface Sequencer extends MidiDevice {
      * 
      * @param sync the {@link SyncMode} for master.
      */
-    void setMasterSyncMode(Sequencer.SyncMode sync);
+    void setMasterSyncMode(@NonNull Sequencer.SyncMode sync);
     
     /**
      * Get the available {@link SyncMode} for slave.
      * 
      * @return the available {@link SyncMode} for slave.
      */
+    @NonNull
     Sequencer.SyncMode[] getSlaveSyncModes();
 
     /**
@@ -102,19 +108,21 @@ public interface Sequencer extends MidiDevice {
      * 
      * @return the {@link SyncMode} for slave.
      */
+    @NonNull
     Sequencer.SyncMode getSlaveSyncMode();
     
     /**
      * Set the {@link SyncMode} for slave.
      * @param sync the {@link SyncMode} for slave.
      */
-    void setSlaveSyncMode(Sequencer.SyncMode sync);
+    void setSlaveSyncMode(@NonNull Sequencer.SyncMode sync);
 
     /**
      * Get the {@link Sequence}
      * 
      * @return the {@link Sequence}
      */
+    @Nullable
     Sequence getSequence();
    
     /**
@@ -124,7 +132,7 @@ public interface Sequencer extends MidiDevice {
      * @throws IOException
      * @throws InvalidMidiDataException
      */
-    void setSequence(InputStream stream) throws IOException, InvalidMidiDataException;
+    void setSequence(@NonNull InputStream stream) throws IOException, InvalidMidiDataException;
 
     /**
      * Set the {@link Sequence} for the {@link Sequencer}
@@ -132,7 +140,7 @@ public interface Sequencer extends MidiDevice {
      * @param sequence the {@link Sequence}
      * @throws InvalidMidiDataException
      */
-    void setSequence(Sequence sequence) throws InvalidMidiDataException;
+    void setSequence(@Nullable Sequence sequence) throws InvalidMidiDataException;
 
     /**
      * Add {@link EventListener} for {@link ShortMessage#CONTROL_CHANGE}
@@ -141,7 +149,8 @@ public interface Sequencer extends MidiDevice {
      * @param controllers controller codes
      * @return int[] registered controllers for the specified listener
      */
-    int[] addControllerEventListener(ControllerEventListener listener, int[] controllers);
+    @NonNull
+    int[] addControllerEventListener(@NonNull ControllerEventListener listener, @NonNull int[] controllers);
 
     /**
      * Remove {@link EventListener} for {@link ShortMessage#CONTROL_CHANGE}
@@ -150,7 +159,8 @@ public interface Sequencer extends MidiDevice {
      * @param controllers controller codes
      * @return int[] registered controllers for the specified listener
      */
-    int[] removeControllerEventListener(ControllerEventListener listener, int[] controllers);
+    @NonNull
+    int[] removeControllerEventListener(@NonNull ControllerEventListener listener, @NonNull int[] controllers);
     
     /**
      * Add {@link EventListener} for {@link MetaMessage}
@@ -158,14 +168,14 @@ public interface Sequencer extends MidiDevice {
      * @param listener event listener
      * @return true if registered successfully
      */
-    boolean addMetaEventListener(MetaEventListener listener);
+    boolean addMetaEventListener(@NonNull MetaEventListener listener);
 
     /**
      * Remove {@link EventListener} for {@link MetaMessage}
      * 
      * @param listener event listener
      */
-    void removeMetaEventListener(MetaEventListener listener);
+    void removeMetaEventListener(@NonNull MetaEventListener listener);
     
     /**
      * Get if the {@link Sequencer} is recording.
@@ -186,7 +196,7 @@ public interface Sequencer extends MidiDevice {
      * 
      * @param track the {@link Track} to disable recording
      */
-    void recordDisable(Track track);
+    void recordDisable(@Nullable Track track);
 
     /***
      * Set the {@link Track} to enable recording on the specified channel.
@@ -194,7 +204,7 @@ public interface Sequencer extends MidiDevice {
      * @param track the {@link Track}
      * @param channel the channel, 0-15
      */
-    void recordEnable(Track track, int channel);
+    void recordEnable(@NonNull Track track, int channel);
     
     /**
      * Get the count of loop.
@@ -267,6 +277,11 @@ public interface Sequencer extends MidiDevice {
      */
     void setTempoFactor(float factor);
 
+    /**
+     * Get the tempo in the Beats per minute.
+     *
+     * @return the tempo in the Beats per minute.
+     */
     float getTempoInBPM();
 
     /**
@@ -276,6 +291,11 @@ public interface Sequencer extends MidiDevice {
      */
     void setTempoInBPM(float bpm);
 
+    /**
+     * Get the tempos in the microseconds per quarter note.
+     *
+     * @return the tempos in the microseconds per quarter note
+     */
     float getTempoInMPQ();
 
     /**

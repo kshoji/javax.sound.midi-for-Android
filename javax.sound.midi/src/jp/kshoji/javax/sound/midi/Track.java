@@ -1,5 +1,7 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,12 +32,23 @@ public class Track {
 				return tickDifference * 256;
 			}
 
+            byte[] lhsMessage = lhs.getMessage().getMessage();
+            byte[] rhsMessage = rhs.getMessage().getMessage();
+
+            // apply zero if message is empty
+            if (lhsMessage == null || lhsMessage.length < 1) {
+                lhsMessage = new byte[] {0};
+            }
+            if (rhsMessage == null || rhsMessage.length < 1) {
+                rhsMessage = new byte[] {0};
+            }
+
 			// same timing
 			// sort by the MIDI data priority order, as:
 			// system message > control messages > note on > note off
 			// swap the priority of note on, and note off
-			int lhsInt = (lhs.getMessage().getMessage()[0] & 0xf0);
-			int rhsInt = (rhs.getMessage().getMessage()[0] & 0xf0);
+			int lhsInt = (lhsMessage[0] & 0xf0);
+			int rhsInt = (rhsMessage[0] & 0xf0);
 
 			if ((lhsInt & 0x90) == 0x80) {
 				lhsInt |= 0x10;
@@ -61,17 +74,24 @@ public class Track {
 		/**
 		 * Merge the specified {@link Sequencer}'s {@link Track}s into one {@link Track}
 		 * 
-		 * @param sequencer
-		 * @param recordEnable
+		 * @param sequencer the Sequencer
+		 * @param recordEnable track recordable flags
 		 * @return merged {@link Sequence}
 		 * @throws InvalidMidiDataException
 		 */
-		public static Track mergeSequenceToTrack(Sequencer sequencer, Map<Track, Set<Integer>> recordEnable) throws InvalidMidiDataException {
+        @NonNull
+        public static Track mergeSequenceToTrack(@NonNull Sequencer sequencer, @NonNull Map<Track, Set<Integer>> recordEnable) throws InvalidMidiDataException {
 			Sequence sourceSequence = sequencer.getSequence();
 			Track mergedTrack = new Track();
 
 			// apply track mute and solo
-			Track[] tracks = sourceSequence.getTracks();
+			Track[] tracks;
+            if (sourceSequence == null) {
+                tracks = new Track[] {};
+            } else {
+                tracks = sourceSequence.getTracks();
+            }
+
 			boolean hasSoloTrack = false;
 			for (int trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
 				if (sequencer.getTrackSolo(trackIndex)) {
@@ -105,9 +125,9 @@ public class Track {
 		/**
 		 * Sort the {@link Track}'s {@link MidiEvent}, order by tick and events
 		 * 
-		 * @param track
+		 * @param track the Track
 		 */
-		public static void sortEvents(Track track) {
+		public static void sortEvents(@NonNull Track track) {
 			synchronized (track.events) {
 				// remove all of END_OF_TRACK
 				List<MidiEvent> filtered = new ArrayList<MidiEvent>();
@@ -138,7 +158,7 @@ public class Track {
 	 * @param event to add
 	 * @return true if the event has been added
 	 */
-	public boolean add(MidiEvent event) {
+	public boolean add(@NonNull MidiEvent event) {
 		synchronized (events) {
 			return events.add(event);
 		}
@@ -151,7 +171,8 @@ public class Track {
 	 * @return the MidiEvent
 	 * @throws ArrayIndexOutOfBoundsException
 	 */
-	public MidiEvent get(int index) throws ArrayIndexOutOfBoundsException {
+    @NonNull
+    public MidiEvent get(int index) throws ArrayIndexOutOfBoundsException {
 		synchronized (events) {
 			return events.get(index);
 		}
@@ -163,7 +184,7 @@ public class Track {
 	 * @param event to remove
 	 * @return true if the event has been removed
 	 */
-	public boolean remove(MidiEvent event) {
+	public boolean remove(@NonNull MidiEvent event) {
 		synchronized (events) {
 			return events.remove(event);
 		}

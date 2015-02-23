@@ -1,5 +1,7 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.Nullable;
+
 /**
  * Interface for MIDI Transmitter.
  * 
@@ -12,14 +14,15 @@ public interface Transmitter {
      *
 	 * @param receiver the Receiver
 	 */
-	void setReceiver(Receiver receiver);
+	void setReceiver(@Nullable Receiver receiver);
 
 	/**
 	 * Get the {@link Receiver} for this {@link Transmitter}
      *
 	 * @return the Receiver
 	 */
-	Receiver getReceiver();
+    @Nullable
+    Receiver getReceiver();
 
 	/**
 	 * Close this {@link Transmitter}

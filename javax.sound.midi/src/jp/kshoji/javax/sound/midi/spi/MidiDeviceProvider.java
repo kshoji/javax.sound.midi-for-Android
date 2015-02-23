@@ -1,5 +1,8 @@
 package jp.kshoji.javax.sound.midi.spi;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import jp.kshoji.javax.sound.midi.MidiDevice;
 
 /**
@@ -22,13 +25,15 @@ public abstract class MidiDeviceProvider {
      * @return the MidiDevice
      * @throws IllegalArgumentException
      */
-    public abstract MidiDevice getDevice(MidiDevice.Info info) throws IllegalArgumentException;
+    @Nullable
+    public abstract MidiDevice getDevice(@NonNull MidiDevice.Info info) throws IllegalArgumentException;
 
     /**
      * Get the all of {@link MidiDevice.Info}
      *
      * @return the array of {@link MidiDevice.Info}
      */
+    @NonNull
     public abstract MidiDevice.Info[] getDeviceInfo();
 
     /**
@@ -37,7 +42,7 @@ public abstract class MidiDeviceProvider {
      * @param info the information
      * @return true if the Device is supported
      */
-    public boolean isDeviceSupported(MidiDevice.Info info) {
+    public boolean isDeviceSupported(@NonNull MidiDevice.Info info) {
         MidiDevice.Info[] informationArray = getDeviceInfo();
 
         for (MidiDevice.Info information : informationArray) {

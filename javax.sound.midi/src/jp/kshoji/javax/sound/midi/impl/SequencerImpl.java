@@ -1,5 +1,7 @@
 package jp.kshoji.javax.sound.midi.impl;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
@@ -81,6 +83,9 @@ public class SequencerImpl implements Sequencer {
         long runningStoppedTime;
         boolean needRefreshPlayingTrack = false;
 
+        /**
+         * Constructor
+         */
         SequencerThread() {
         }
 
@@ -213,7 +218,7 @@ public class SequencerImpl implements Sequencer {
          *
          * @param message the {@link MidiMessage}
          */
-        void fireEventListeners(MidiMessage message) {
+        void fireEventListeners(@NonNull MidiMessage message) {
             if (message instanceof MetaMessage) {
                 synchronized (metaEventListeners) {
                     try {
@@ -252,7 +257,7 @@ public class SequencerImpl implements Sequencer {
             // recording
             Receiver midiEventRecordingReceiver = new Receiver() {
                 @Override
-                public void send(MidiMessage message, long timeStamp) {
+                public void send(@NonNull MidiMessage message, long timeStamp) {
                     if (isRecording) {
                         recordingTrack.add(new MidiEvent(message, (long) (recordStartedTick + ((System.currentTimeMillis() - recordingStartedTime) * 1000f * getTicksPerMicrosecond()))));
                     }
@@ -410,10 +415,10 @@ public class SequencerImpl implements Sequencer {
          * @param metaMessage the {@link MetaMessage}
          * @return true if the tempo changed
          */
-        private boolean processTempoChange(MetaMessage metaMessage) {
+        private boolean processTempoChange(@NonNull MetaMessage metaMessage) {
             if (metaMessage.getLength() == 6 && metaMessage.getStatus() == MetaMessage.META) {
                 byte[] message = metaMessage.getMessage();
-                if ((message[1] & 0xff) == MetaMessage.TYPE_TEMPO && message[2] == 3) {
+                if (message != null && (message[1] & 0xff) == MetaMessage.TYPE_TEMPO && message[2] == 3) {
                     int tempo = (message[5] & 0xff) | //
                             ((message[4] & 0xff) << 8) | //
                             ((message[3] & 0xff) << 16);
@@ -434,7 +439,7 @@ public class SequencerImpl implements Sequencer {
             }
 
             Track[] tracks = sequence.getTracks();
-            if (tracks != null && tracks.length > 0) {
+            if (tracks.length > 0) {
                 try {
                     // at first, merge all track into one track
                     playingTrack = TrackUtils.mergeSequenceToTrack(SequencerImpl.this, recordEnable);
@@ -451,11 +456,7 @@ public class SequencerImpl implements Sequencer {
          * @param midiEvent the {@link MidiEvent}
          * @return true if the event can be recorded
          */
-        private boolean isRecordable(Set<Integer> recordEnableChannels, MidiEvent midiEvent) {
-            if (recordEnableChannels == null) {
-                return false;
-            }
-
+        private boolean isRecordable(@NonNull Set<Integer> recordEnableChannels, @NonNull MidiEvent midiEvent) {
             if (recordEnableChannels.contains(Integer.valueOf(-1))) {
                 return true;
             }
@@ -485,6 +486,7 @@ public class SequencerImpl implements Sequencer {
     public SequencerImpl() {
     }
 
+    @NonNull
     @Override
     public Info getDeviceInfo() {
         return new Info("Sequencer", "jp.kshoji", "Android MIDI Sequencer", "0.1");
@@ -584,6 +586,7 @@ public class SequencerImpl implements Sequencer {
         }
     }
 
+    @NonNull
     @Override
     public List<Receiver> getReceivers() {
         synchronized (receivers) {
@@ -602,6 +605,7 @@ public class SequencerImpl implements Sequencer {
         }
     }
 
+    @NonNull
     @Override
     public List<Transmitter> getTransmitters() {
         synchronized (transmitters) {
@@ -609,8 +613,9 @@ public class SequencerImpl implements Sequencer {
         }
     }
 
+    @NonNull
     @Override
-    public int[] addControllerEventListener(ControllerEventListener listener, int[] controllers) {
+    public int[] addControllerEventListener(@NonNull ControllerEventListener listener, @NonNull int[] controllers) {
         synchronized (controllerEventListenerMap) {
             for (int controllerId : controllers) {
                 Set<ControllerEventListener> listeners = controllerEventListenerMap.get(controllerId);
@@ -624,8 +629,9 @@ public class SequencerImpl implements Sequencer {
         }
     }
 
+    @NonNull
     @Override
-    public int[] removeControllerEventListener(ControllerEventListener listener, int[] controllers) {
+    public int[] removeControllerEventListener(@NonNull ControllerEventListener listener, @NonNull int[] controllers) {
         synchronized (controllerEventListenerMap) {
             List<Integer> resultList = new ArrayList<Integer>();
             for (int controllerId : controllers) {
@@ -654,7 +660,7 @@ public class SequencerImpl implements Sequencer {
     }
 
     @Override
-    public boolean addMetaEventListener(MetaEventListener listener) {
+    public boolean addMetaEventListener(@NonNull MetaEventListener listener) {
         // return true if registered successfully
         synchronized (metaEventListeners) {
             return metaEventListeners.add(listener);
@@ -662,7 +668,7 @@ public class SequencerImpl implements Sequencer {
     }
 
     @Override
-    public void removeMetaEventListener(MetaEventListener listener) {
+    public void removeMetaEventListener(@NonNull MetaEventListener listener) {
         synchronized (metaEventListeners) {
             metaEventListeners.remove(listener);
         }
@@ -707,13 +713,14 @@ public class SequencerImpl implements Sequencer {
         loopEndPoint = tick;
     }
 
+    @NonNull
     @Override
     public SyncMode getMasterSyncMode() {
         return masterSyncMode;
     }
 
     @Override
-    public void setMasterSyncMode(SyncMode sync) {
+    public void setMasterSyncMode(@NonNull SyncMode sync) {
         for (SyncMode availableMode : getMasterSyncModes()) {
             if (availableMode == sync) {
                 masterSyncMode = sync;
@@ -721,6 +728,7 @@ public class SequencerImpl implements Sequencer {
         }
     }
 
+    @NonNull
     @Override
     public SyncMode[] getMasterSyncModes() {
         return MASTER_SYNC_MODES;
@@ -728,7 +736,7 @@ public class SequencerImpl implements Sequencer {
 
     @Override
     public long getMicrosecondPosition() {
-        return (long) (getTickPosition() * getTicksPerMicrosecond());
+        return (long) (getTickPosition() / getTicksPerMicrosecond());
     }
 
     @Override
@@ -739,9 +747,13 @@ public class SequencerImpl implements Sequencer {
     /**
      * convert parameter from microseconds to tick
      *
-     * @return ticks per microsecond
+     * @return ticks per microsecond, NaN: sequence is null
      */
     float getTicksPerMicrosecond() {
+        if (sequence == null) {
+            return Float.NaN;
+        }
+
         float ticksPerMicrosecond;
         if (sequence.getDivisionType() == Sequence.PPQ) {
             // PPQ : tempoInBPM / 60f * resolution / 1000000 ticks per microsecond
@@ -765,23 +777,27 @@ public class SequencerImpl implements Sequencer {
     }
 
     @Override
-    public void setSequence(InputStream stream) throws IOException, InvalidMidiDataException {
+    public void setSequence(@NonNull InputStream stream) throws IOException, InvalidMidiDataException {
         setSequence(new StandardMidiFileReader().getSequence(stream));
     }
 
     @Override
-    public void setSequence(Sequence sequence) throws InvalidMidiDataException {
+    public void setSequence(@Nullable Sequence sequence) throws InvalidMidiDataException {
         this.sequence = sequence;
-        sequencerThread.needRefreshPlayingTrack = true;
+
+        if (sequence != null) {
+            sequencerThread.needRefreshPlayingTrack = true;
+        }
     }
 
+    @NonNull
     @Override
     public SyncMode getSlaveSyncMode() {
         return slaveSyncMode;
     }
 
     @Override
-    public void setSlaveSyncMode(SyncMode sync) {
+    public void setSlaveSyncMode(@NonNull SyncMode sync) {
         for (SyncMode availableMode : getSlaveSyncModes()) {
             if (availableMode == sync) {
                 slaveSyncMode = sync;
@@ -789,6 +805,7 @@ public class SequencerImpl implements Sequencer {
         }
     }
 
+    @NonNull
     @Override
     public SyncMode[] getSlaveSyncModes() {
         return SLAVE_SYNC_MODES;
@@ -867,7 +884,7 @@ public class SequencerImpl implements Sequencer {
     }
 
     @Override
-    public void recordDisable(Track track) {
+    public void recordDisable(@Nullable Track track) {
         if (track == null) {
             // disable all track
             recordEnable.clear();
@@ -881,7 +898,7 @@ public class SequencerImpl implements Sequencer {
     }
 
     @Override
-    public void recordEnable(Track track, int channel) {
+    public void recordEnable(@NonNull Track track, int channel) {
         Set<Integer> trackRecordEnable = recordEnable.get(track);
         if (trackRecordEnable == null) {
             trackRecordEnable = new HashSet<Integer>();

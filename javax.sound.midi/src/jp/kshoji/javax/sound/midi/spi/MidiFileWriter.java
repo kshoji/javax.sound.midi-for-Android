@@ -1,5 +1,7 @@
 package jp.kshoji.javax.sound.midi.spi;
 
+import android.support.annotation.NonNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -18,7 +20,8 @@ public abstract class MidiFileWriter {
      *
      * @return the array of file type
      */
-	public abstract int[] getMidiFileTypes();
+    @NonNull
+    public abstract int[] getMidiFileTypes();
 
     /**
      * Get the all of the file types ID on the specified {@link Sequence}
@@ -26,7 +29,8 @@ public abstract class MidiFileWriter {
      * @param sequence the sequence
      * @return the array of file type
      */
-	public abstract int[] getMidiFileTypes(Sequence sequence);
+    @NonNull
+    public abstract int[] getMidiFileTypes(@NonNull Sequence sequence);
 
     /**
      * Check if the specified file type is supported
@@ -51,7 +55,7 @@ public abstract class MidiFileWriter {
      * @param sequence the sequence
      * @return true if the specified file type is supported on the sequence
      */
-	public boolean isFileTypeSupported(int fileType, Sequence sequence) {
+	public boolean isFileTypeSupported(int fileType, @NonNull Sequence sequence) {
 		int[] supported = getMidiFileTypes(sequence);
 		for (int element : supported) {
 			if (fileType == element) {
@@ -70,7 +74,7 @@ public abstract class MidiFileWriter {
      * @return the written data length
      * @throws IOException
      */
-	public abstract int write(Sequence sequence, int fileType, File file) throws IOException;
+	public abstract int write(@NonNull Sequence sequence, int fileType, @NonNull File file) throws IOException;
 
     /**
      * Write the {@link Sequence} to the {@link OutputStream} with the file type
@@ -81,5 +85,5 @@ public abstract class MidiFileWriter {
      * @return the written data length
      * @throws IOException
      */
-	public abstract int write(Sequence sequence, int fileType, OutputStream outputStream) throws IOException;
+	public abstract int write(@NonNull Sequence sequence, int fileType, @NonNull OutputStream outputStream) throws IOException;
 }

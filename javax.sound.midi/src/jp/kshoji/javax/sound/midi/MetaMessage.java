@@ -1,5 +1,7 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.NonNull;
+
 import java.util.Arrays;
 
 /**
@@ -30,7 +32,7 @@ public class MetaMessage extends MidiMessage {
 	 * @param data the data source, the length must be longer than 2 bytes
 	 * @throws NegativeArraySizeException MUST be caught. We can't throw {@link InvalidMidiDataException} because of API compatibility.
 	 */
-	protected MetaMessage(byte[] data) throws NegativeArraySizeException {
+	protected MetaMessage(@NonNull byte[] data) throws NegativeArraySizeException {
 		super(data);
 
         if (data.length < 3) {
@@ -60,7 +62,7 @@ public class MetaMessage extends MidiMessage {
      * @param length unused parameter. Use always data.length
      * @throws InvalidMidiDataException
      */
-    public MetaMessage(int type, byte[] data, int length) throws InvalidMidiDataException {
+    public MetaMessage(int type, @NonNull byte[] data, int length) throws InvalidMidiDataException {
         super(null);
         setMessage(type, data, length);
     }
@@ -73,7 +75,7 @@ public class MetaMessage extends MidiMessage {
 	 * @param length unused parameter. Use always data.length
 	 * @throws InvalidMidiDataException
 	 */
-	public void setMessage(int type, byte[] data, int length) throws InvalidMidiDataException {
+	public void setMessage(int type, @NonNull byte[] data, int length) throws InvalidMidiDataException {
 		if (type >= 128 || type < 0) {
 			throw new InvalidMidiDataException("Invalid meta event. type: " + type);
 		}
@@ -113,12 +115,14 @@ public class MetaMessage extends MidiMessage {
 	 * 
 	 * @return the data without header(`META`, type, data length)
 	 */
-	public byte[] getData() {
+    @NonNull
+    public byte[] getData() {
 		byte[] returnedArray = new byte[dataLength];
 		System.arraycopy(data, (data.length - dataLength), returnedArray, 0, dataLength);
 		return returnedArray;
 	}
 
+    @NonNull
 	@Override
 	public Object clone() {
 		byte[] result = new byte[data.length];
@@ -149,7 +153,7 @@ public class MetaMessage extends MidiMessage {
      * @param offset the offset
      * @param value the value to write
      */
-	private static void writeMidiValues(byte[] data, int offset, long value) {
+	private static void writeMidiValues(@NonNull byte[] data, int offset, long value) {
 		int shift = 63;
 		while ((shift > 0) && ((value & (0x7f << shift)) == 0)) {
 			shift -= 7;

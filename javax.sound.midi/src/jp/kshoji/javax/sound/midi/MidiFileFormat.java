@@ -1,5 +1,8 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,7 +61,7 @@ public class MidiFileFormat {
      * @param microseconds the length of time(in micro seconds)
      * @param properties the properties
      */
-	public MidiFileFormat(int type, float divisionType, int resolution, int bytes, long microseconds, Map<String, Object> properties) {
+	public MidiFileFormat(int type, float divisionType, int resolution, int bytes, long microseconds, @NonNull Map<String, Object> properties) {
         this(type, divisionType, resolution, bytes, microseconds);
 		this.properties.putAll(properties);
 	}
@@ -96,7 +99,8 @@ public class MidiFileFormat {
 	 * @param key the property name
 	 * @return the property
 	 */
-	public Object getProperty(String key) {
+    @Nullable
+    public Object getProperty(String key) {
 		return properties.get(key);
 	}
 
@@ -123,7 +127,8 @@ public class MidiFileFormat {
 	 * 
 	 * @return properties {@link Map}
 	 */
-	public Map<String, Object> properties() {
+    @NonNull
+    public Map<String, Object> properties() {
 		return Collections.unmodifiableMap(properties);
 	}
 }

@@ -1,5 +1,7 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.NonNull;
+
 /**
  * Interface for {@link MidiDevice} receiver.
  *
@@ -12,5 +14,6 @@ public interface MidiDeviceReceiver extends Receiver {
      *
      * @return the {@link jp.kshoji.javax.sound.midi.MidiDevice} associated with this instance.
      */
+    @NonNull
     MidiDevice getMidiDevice();
 }

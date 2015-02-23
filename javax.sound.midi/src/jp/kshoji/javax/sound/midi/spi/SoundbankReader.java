@@ -1,5 +1,7 @@
 package jp.kshoji.javax.sound.midi.spi;
 
+import android.support.annotation.NonNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +31,8 @@ public abstract class SoundbankReader {
      * @throws InvalidMidiDataException
      * @throws IOException
      */
-    public abstract Soundbank getSoundbank(File file) throws InvalidMidiDataException, IOException;
+    @NonNull
+    public abstract Soundbank getSoundbank(@NonNull File file) throws InvalidMidiDataException, IOException;
 
     /**
      * Get the Soundbank from the specified {@link InputStream}
@@ -39,7 +42,8 @@ public abstract class SoundbankReader {
      * @throws InvalidMidiDataException
      * @throws IOException
      */
-    public abstract Soundbank getSoundbank(InputStream stream) throws InvalidMidiDataException, IOException;
+    @NonNull
+    public abstract Soundbank getSoundbank(@NonNull InputStream stream) throws InvalidMidiDataException, IOException;
 
     /**
      * Get the Soundbank from the specified {@link URL}
@@ -49,5 +53,6 @@ public abstract class SoundbankReader {
      * @throws InvalidMidiDataException
      * @throws IOException
      */
-    public abstract Soundbank getSoundbank(URL url) throws InvalidMidiDataException, IOException;
+    @NonNull
+    public abstract Soundbank getSoundbank(@NonNull URL url) throws InvalidMidiDataException, IOException;
 }

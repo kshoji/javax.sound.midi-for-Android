@@ -1,5 +1,8 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 /**
  * Interface for MIDI Soundbank
  *
@@ -8,10 +11,19 @@ package jp.kshoji.javax.sound.midi;
 public interface Soundbank {
 
     /**
+     * Get the name of Soundbank
+     *
+     * @return the name of Soundbank
+     */
+    @NonNull
+    String getName();
+
+    /**
      * Get the description string
      *
      * @return the description
      */
+    @NonNull
     String getDescription();
 
     /**
@@ -19,6 +31,7 @@ public interface Soundbank {
      *
      * @return the vendor
      */
+    @NonNull
     String getVendor();
 
     /**
@@ -26,6 +39,7 @@ public interface Soundbank {
      *
      * @return the version
      */
+    @NonNull
     String getVersion();
 
     /**
@@ -34,25 +48,21 @@ public interface Soundbank {
      * @param patch the {@link Patch}
      * @return {@link Instrument} matches with patch
      */
-    Instrument getInstrument(Patch patch);
+    @Nullable
+    Instrument getInstrument(@NonNull Patch patch);
 
     /**
      * Get all of {@link Instrument}s
      *
      * @return the array of {@link Instrument}s
      */
+    @NonNull
     Instrument[] getInstruments();
-
-    /**
-     * Get the name of Soundbank
-     *
-     * @return the name of Soundbank
-     */
-    String getName();
 
     /**
      * Get all of {@link SoundbankResource}s
      * @return the array of {@link SoundbankResource}s
      */
+    @NonNull
     SoundbankResource[] getResources();
 }

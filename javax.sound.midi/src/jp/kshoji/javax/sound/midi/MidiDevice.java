@@ -1,5 +1,8 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.util.List;
 
 /**
@@ -14,7 +17,8 @@ public interface MidiDevice {
      *
      * @return the device information
      */
-	Info getDeviceInfo();
+    @NonNull
+    Info getDeviceInfo();
 
 	/**
 	 * Open the {@link MidiDevice}. This method must be called at getting the new instance.
@@ -61,14 +65,16 @@ public interface MidiDevice {
 	 * @return the default {@link Receiver}.
 	 * @throws MidiUnavailableException
 	 */
-	Receiver getReceiver() throws MidiUnavailableException;
+	@Nullable
+    Receiver getReceiver() throws MidiUnavailableException;
 
 	/**
 	 * Get the all of {@link Receiver}s.
 	 * 
 	 * @return the all of {@link Receiver}s.
 	 */
-	List<Receiver> getReceivers();
+    @NonNull
+    List<Receiver> getReceivers();
 
 	/**
 	 * Get the default {@link Transmitter}.
@@ -76,14 +82,16 @@ public interface MidiDevice {
 	 * @return the default {@link Transmitter}.
 	 * @throws MidiUnavailableException
 	 */
-	Transmitter getTransmitter() throws MidiUnavailableException;
+    @Nullable
+    Transmitter getTransmitter() throws MidiUnavailableException;
 
 	/**
 	 * Get the all of {@link Transmitter}s.
 	 * 
 	 * @return the all of {@link Transmitter}s.
 	 */
-	List<Transmitter> getTransmitters();
+    @NonNull
+    List<Transmitter> getTransmitters();
 
 	/**
 	 * Represents the {@link MidiDevice}'s information
@@ -96,7 +104,15 @@ public interface MidiDevice {
 		private String description;
 		private String version;
 
-		public Info(String name, String vendor, String description, String version) {
+        /**
+         * Constructor
+         *
+         * @param name the name string
+         * @param vendor the vendor string
+         * @param description the description string
+         * @param version the version string
+         */
+		public Info(@NonNull String name, @NonNull String vendor, @NonNull String description, @NonNull String version) {
 			this.name = name;
 			this.vendor = vendor;
 			this.description = description;
@@ -108,7 +124,8 @@ public interface MidiDevice {
 		 * 
 		 * @return the name of {@link MidiDevice}
 		 */
-		public final String getName() {
+        @NonNull
+        public final String getName() {
 			return name;
 		}
 
@@ -117,7 +134,8 @@ public interface MidiDevice {
 		 * 
 		 * @return the vendor of {@link MidiDevice}
 		 */
-		public final String getVendor() {
+        @NonNull
+        public final String getVendor() {
 			return vendor;
 		}
 
@@ -126,7 +144,8 @@ public interface MidiDevice {
 		 * 
 		 * @return the description of {@link MidiDevice}
 		 */
-		public final String getDescription() {
+        @NonNull
+        public final String getDescription() {
 			return description;
 		}
 
@@ -135,12 +154,14 @@ public interface MidiDevice {
 		 * 
 		 * @return the version of {@link MidiDevice}
 		 */
-		public final String getVersion() {
+        @NonNull
+        public final String getVersion() {
 			return version;
 		}
 
+        @NonNull
 		@Override
-		public final String toString() {
+        public final String toString() {
 			return name;
 		}
 

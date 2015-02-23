@@ -1,5 +1,7 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.NonNull;
+
 /**
  * Interface for {@link MidiMessage} receiver.
  * 
@@ -13,7 +15,7 @@ public interface Receiver {
 	 * @param message the received message
 	 * @param timeStamp -1 if the timeStamp information is not available
 	 */
-	void send(MidiMessage message, long timeStamp);
+	void send(@NonNull MidiMessage message, long timeStamp);
 
 	/**
 	 * Close the {@link Receiver}

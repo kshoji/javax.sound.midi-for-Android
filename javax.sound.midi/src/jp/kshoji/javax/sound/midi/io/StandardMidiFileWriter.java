@@ -1,5 +1,7 @@
 package jp.kshoji.javax.sound.midi.io;
 
+import android.support.annotation.NonNull;
+
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,7 +34,7 @@ public class StandardMidiFileWriter extends MidiFileWriter {
          *
          * @param outputStream the source stream
          */
-		public MidiDataOutputStream(OutputStream outputStream) {
+		public MidiDataOutputStream(@NonNull OutputStream outputStream) {
 			super(outputStream);
 		}
 
@@ -97,13 +99,15 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 		}
 	}
 	
-	@Override
+	@NonNull
+    @Override
 	public int[] getMidiFileTypes() {
 		return new int[] { 0, 1 };
 	}
 
-	@Override
-	public int[] getMidiFileTypes(Sequence sequence) {
+	@NonNull
+    @Override
+	public int[] getMidiFileTypes(@NonNull Sequence sequence) {
 		if (sequence.getTracks().length > 1) {
 			return new int[] { 1 };
 		} else {
@@ -112,7 +116,7 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 	}
 
 	@Override
-	public int write(Sequence sequence, int fileType, File file) throws IOException {
+	public int write(@NonNull Sequence sequence, int fileType, @NonNull File file) throws IOException {
 		FileOutputStream fileOutputStream = new FileOutputStream(file);
 		int written = write(sequence, fileType, fileOutputStream);
 		fileOutputStream.close();
@@ -120,7 +124,7 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 	}
 
 	@Override
-	public int write(Sequence sequence, int fileType, OutputStream outputStream) throws IOException {
+	public int write(@NonNull Sequence sequence, int fileType, @NonNull OutputStream outputStream) throws IOException {
 		MidiDataOutputStream midiDataOutputStream = new MidiDataOutputStream(outputStream);
 
 		Track[] tracks = sequence.getTracks();
@@ -166,7 +170,7 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 	 * @return written byte length
 	 * @throws IOException
 	 */
-	private static int writeTrack(Track track, MidiDataOutputStream midiDataOutputStream) throws IOException {
+	private static int writeTrack(@NonNull Track track, @NonNull MidiDataOutputStream midiDataOutputStream) throws IOException {
 		int eventCount = track.size();
         int trackLength = 0;
         long lastTick = 0;

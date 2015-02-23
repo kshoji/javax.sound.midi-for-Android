@@ -1,5 +1,8 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.util.Vector;
 
 /**
@@ -76,7 +79,8 @@ public class Sequence {
 	 * 
 	 * @return an empty {@link Track}
 	 */
-	public Track createTrack() {
+    @NonNull
+    public Track createTrack() {
 		/*
 		 * new Tracks accrue to the end of vector
 		 */
@@ -91,7 +95,7 @@ public class Sequence {
 	 * @param track to delete
 	 * @return true if the track is successfully deleted
 	 */
-	public boolean deleteTrack(Track track) {
+	public boolean deleteTrack(@Nullable Track track) {
 		return tracks.remove(track);
 	}
 
@@ -143,7 +147,8 @@ public class Sequence {
      *
 	 * @return array of tracks
 	 */
-	public Track[] getTracks() {
+    @NonNull
+    public Track[] getTracks() {
 		Track[] track = new Track[tracks.size()];
 		tracks.toArray(track);
 		return track;
@@ -154,6 +159,7 @@ public class Sequence {
      *
      * @return empty array(not implemented)
      */
+    @NonNull
     public Patch[] getPatchList() {
         return new Patch[] {};
     }

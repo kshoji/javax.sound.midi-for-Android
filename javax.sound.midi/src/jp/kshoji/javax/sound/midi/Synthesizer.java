@@ -1,5 +1,8 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 /**
  * Interface for MIDI Synthesizer
  *
@@ -12,6 +15,7 @@ public interface Synthesizer extends MidiDevice {
      *
      * @return the array of MidiChannel
      */
+    @NonNull
     MidiChannel[] getChannels();
 
     /**
@@ -33,6 +37,7 @@ public interface Synthesizer extends MidiDevice {
      *
      * @return the array of VoiceStatus
      */
+    @NonNull
     VoiceStatus[] getVoiceStatus();
 
     /**
@@ -40,6 +45,7 @@ public interface Synthesizer extends MidiDevice {
      *
      * @return the Soundbank
      */
+    @Nullable
     Soundbank getDefaultSoundbank();
 
     /**
@@ -48,13 +54,14 @@ public interface Synthesizer extends MidiDevice {
      * @param soundbank the Soundbank
      * @return true if the Soundbank is supported
      */
-    boolean isSoundbankSupported(Soundbank soundbank);
+    boolean isSoundbankSupported(@NonNull Soundbank soundbank);
 
     /**
      * Get the all available {@link Instrument}s
      *
      * @return the array of Instrument
      */
+    @NonNull
     Instrument[] getAvailableInstruments();
 
     /**
@@ -62,6 +69,7 @@ public interface Synthesizer extends MidiDevice {
      *
      * @return the array of Instrument
      */
+    @NonNull
     Instrument[] getLoadedInstruments();
 
     /**
@@ -71,7 +79,7 @@ public interface Synthesizer extends MidiDevice {
      * @param to the new Instrument
      * @return true if succeed to remap
      */
-    boolean remapInstrument(Instrument from, Instrument to);
+    boolean remapInstrument(@NonNull Instrument from, @NonNull Instrument to);
 
     /**
      * Load all instruments belongs specified {@link Soundbank}
@@ -79,14 +87,14 @@ public interface Synthesizer extends MidiDevice {
      * @param soundbank the Soundbank
      * @return true if succeed to load
      */
-    boolean loadAllInstruments(Soundbank soundbank);
+    boolean loadAllInstruments(@NonNull Soundbank soundbank);
 
     /**
      * Unload all instruments belongs specified {@link Soundbank}
      *
      * @param soundbank the Soundbank
      */
-    void unloadAllInstruments(Soundbank soundbank);
+    void unloadAllInstruments(@NonNull Soundbank soundbank);
 
     /**
      * Load the specified {@link Instrument}
@@ -94,14 +102,14 @@ public interface Synthesizer extends MidiDevice {
      * @param instrument the instrument
      * @return true if succeed to load
      */
-    boolean loadInstrument(Instrument instrument);
+    boolean loadInstrument(@NonNull Instrument instrument);
 
     /**
      * Unload the specified {@link Instrument}
      *
      * @param instrument the instrument
      */
-    void unloadInstrument(Instrument instrument);
+    void unloadInstrument(@NonNull Instrument instrument);
 
     /**
      * Load all instruments belongs specified {@link Soundbank} and {@link Patch}es
@@ -110,7 +118,7 @@ public interface Synthesizer extends MidiDevice {
      * @param patchList the array of Patch
      * @return true if succeed to load
      */
-    boolean loadInstruments(Soundbank soundbank, Patch[] patchList);
+    boolean loadInstruments(@NonNull Soundbank soundbank, @NonNull Patch[] patchList);
 
     /**
      * Unload all instruments belongs specified {@link Soundbank} and {@link Patch}es
@@ -118,5 +126,5 @@ public interface Synthesizer extends MidiDevice {
      * @param soundbank the the Soundbank
      * @param patchList the array of Patch
      */
-    void unloadInstruments(Soundbank soundbank, Patch[] patchList);
+    void unloadInstruments(@NonNull Soundbank soundbank, @NonNull Patch[] patchList);
 }
