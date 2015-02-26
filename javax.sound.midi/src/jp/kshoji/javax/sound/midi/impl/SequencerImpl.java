@@ -456,7 +456,11 @@ public class SequencerImpl implements Sequencer {
          * @param midiEvent the {@link MidiEvent}
          * @return true if the event can be recorded
          */
-        private boolean isRecordable(@NonNull Set<Integer> recordEnableChannels, @NonNull MidiEvent midiEvent) {
+        private boolean isRecordable(@Nullable Set<Integer> recordEnableChannels, @NonNull MidiEvent midiEvent) {
+            if (recordEnableChannels == null) {
+                return false;
+            }
+            
             if (recordEnableChannels.contains(Integer.valueOf(-1))) {
                 return true;
             }
