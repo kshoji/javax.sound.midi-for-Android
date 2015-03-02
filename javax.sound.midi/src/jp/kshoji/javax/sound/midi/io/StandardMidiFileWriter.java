@@ -1,5 +1,7 @@
 package jp.kshoji.javax.sound.midi.io;
 
+import android.support.annotation.NonNull;
+
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -13,12 +15,35 @@ import jp.kshoji.javax.sound.midi.Sequence;
 import jp.kshoji.javax.sound.midi.Track;
 import jp.kshoji.javax.sound.midi.spi.MidiFileWriter;
 
+/**
+ * The implementation SMF writer
+ *
+ * @author K.Shoji
+ */
 public class StandardMidiFileWriter extends MidiFileWriter {
-	static class MidiDataOutputStream extends DataOutputStream {
-		public MidiDataOutputStream(OutputStream outputStream) {
+
+    /**
+     * Represents OutputStream for MIDI Data
+     *
+     * @author K.Shoji
+     */
+    static class MidiDataOutputStream extends DataOutputStream {
+
+        /**
+         * Constructor
+         *
+         * @param outputStream the source stream
+         */
+		public MidiDataOutputStream(@NonNull OutputStream outputStream) {
 			super(outputStream);
 		}
-		
+
+        /**
+         * Convert the specified value into the value for MIDI data
+         *
+         * @param value the original value
+         * @return the raw data to write
+         */
 		private static int getValueToWrite(int value) {
 			int result = value & 0x7f;
 			int currentValue = value;
@@ -30,6 +55,12 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 			return result;
 		}
 
+        /**
+         * Get the data length for the specified value
+         *
+         * @param value the value
+         * @return the data length
+         */
 		public static int variableLengthIntLength(int value) {
 			int valueToWrite = getValueToWrite(value);
 
@@ -47,6 +78,12 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 			return length;
 		}
 
+        /**
+         * Write the specified value to the OutputStream
+         *
+         * @param value the value
+         * @throws IOException
+         */
 		public synchronized void writeVariableLengthInt(int value) throws IOException {
 			int valueToWrite = getValueToWrite(value);
 
@@ -62,23 +99,15 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 		}
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jp.kshoji.javax.sound.midi.spi.MidiFileWriter#getMidiFileTypes()
-	 */
-	@Override
+	@NonNull
+    @Override
 	public int[] getMidiFileTypes() {
 		return new int[] { 0, 1 };
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jp.kshoji.javax.sound.midi.spi.MidiFileWriter#getMidiFileTypes(jp.kshoji.javax.sound.midi.Sequence)
-	 */
-	@Override
-	public int[] getMidiFileTypes(Sequence sequence) {
+	@NonNull
+    @Override
+	public int[] getMidiFileTypes(@NonNull Sequence sequence) {
 		if (sequence.getTracks().length > 1) {
 			return new int[] { 1 };
 		} else {
@@ -86,28 +115,18 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jp.kshoji.javax.sound.midi.spi.MidiFileWriter#write(jp.kshoji.javax.sound.midi.Sequence, int, java.io.File)
-	 */
 	@Override
-	public int write(Sequence sequence, int fileType, File file) throws IOException {
+	public int write(@NonNull Sequence sequence, int fileType, @NonNull File file) throws IOException {
 		FileOutputStream fileOutputStream = new FileOutputStream(file);
 		int written = write(sequence, fileType, fileOutputStream);
 		fileOutputStream.close();
 		return written;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see jp.kshoji.javax.sound.midi.spi.MidiFileWriter#write(jp.kshoji.javax.sound.midi.Sequence, int, java.io.OutputStream)
-	 */
 	@Override
-	public int write(Sequence sequence, int fileType, OutputStream outputStream) throws IOException {
+	public int write(@NonNull Sequence sequence, int fileType, @NonNull OutputStream outputStream) throws IOException {
 		MidiDataOutputStream midiDataOutputStream = new MidiDataOutputStream(outputStream);
-		
+
 		Track[] tracks = sequence.getTracks();
 		midiDataOutputStream.writeInt(MidiFileFormat.HEADER_MThd);
 		midiDataOutputStream.writeInt(6);
@@ -146,58 +165,59 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 	/**
 	 * Write {@link Track} data into {@link MidiDataOutputStream}
 	 * 
-	 * @param track
-	 * @param midiDataOutputStream
+	 * @param track the track
+	 * @param midiDataOutputStream the OutputStream
 	 * @return written byte length
 	 * @throws IOException
 	 */
-	private static int writeTrack(Track track, MidiDataOutputStream midiDataOutputStream) throws IOException {
+	private static int writeTrack(@NonNull Track track, @NonNull MidiDataOutputStream midiDataOutputStream) throws IOException {
 		int eventCount = track.size();
+        int trackLength = 0;
+        long lastTick = 0;
+        boolean hasEndOfTrack = false;
+        MidiEvent midiEvent = null;
 
-		midiDataOutputStream.writeInt(MidiFileFormat.HEADER_MTrk);
-		
+        // track header
+        midiDataOutputStream.writeInt(MidiFileFormat.HEADER_MTrk);
+
 		// calculate the track length
-		int trackLength = 0;
-		long lastTick = 0;
 		for (int i = 0; i < eventCount; i++) {
-			MidiEvent midiEvent = track.get(i);
+            midiEvent = track.get(i);
 			long tick = midiEvent.getTick();
 			trackLength += MidiDataOutputStream.variableLengthIntLength((int) (tick - lastTick));
 			lastTick = tick;
-			
+
 			trackLength += midiEvent.getMessage().getLength();
 		}
-		midiDataOutputStream.writeInt(trackLength);
 
-		// write the track data
+        // process End of Track message
+        if (midiEvent != null && (midiEvent.getMessage() instanceof MetaMessage) && //
+            ((MetaMessage)midiEvent.getMessage()).getType() == MetaMessage.TYPE_END_OF_TRACK) {
+            hasEndOfTrack = true;
+        } else {
+            trackLength += 4; // End of Track
+        }
+        midiDataOutputStream.writeInt(trackLength);
+
+        // write the track data
 		lastTick = 0;
 		for (int i = 0; i < eventCount; i++) {
-			MidiEvent midiEvent = track.get(i);
-			long tick = midiEvent.getTick();
+            midiEvent = track.get(i);
+            long tick = midiEvent.getTick();
 			midiDataOutputStream.writeVariableLengthInt((int) (tick - lastTick));
 			lastTick = tick;
 			
 			midiDataOutputStream.write(midiEvent.getMessage().getMessage(), 0, midiEvent.getMessage().getLength());
-		}
+        }
 
-		// process End of Track message
-		if (eventCount > 0) {
-			MidiEvent lastMidiEvent = track.get(eventCount - 1);
-			if (lastMidiEvent != null && (lastMidiEvent.getMessage() instanceof MetaMessage)) {
-				MetaMessage metaMessage = (MetaMessage) lastMidiEvent.getMessage();
-				if (metaMessage.getType() == MetaMessage.TYPE_END_OF_TRACK) {
-					// End of Track
-					return trackLength + 8;
-				}
-			}
-		}
+        // write End of Track message if not found.
+        if (!hasEndOfTrack) {
+            midiDataOutputStream.writeVariableLengthInt(0);
+            midiDataOutputStream.writeByte(MetaMessage.META);
+            midiDataOutputStream.writeByte(MetaMessage.TYPE_END_OF_TRACK);
+            midiDataOutputStream.writeVariableLengthInt(0);
+        }
 
-		// write End of Track message if not found.
-		midiDataOutputStream.writeVariableLengthInt(0);
-		midiDataOutputStream.writeByte(MetaMessage.META);
-		midiDataOutputStream.writeByte(MetaMessage.TYPE_END_OF_TRACK);
-		midiDataOutputStream.writeVariableLengthInt(0);
-
-		return trackLength + 12;
+		return trackLength + 4;
 	}
 }

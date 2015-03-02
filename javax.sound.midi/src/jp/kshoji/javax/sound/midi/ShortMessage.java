@@ -1,5 +1,7 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.NonNull;
+
 /**
  * Represents MIDI Short Message
  * 
@@ -40,16 +42,54 @@ public class ShortMessage extends MidiMessage {
 	/**
 	 * Constructor with raw data.
 	 * 
-	 * @param data
+	 * @param data the raw data
 	 */
-	protected ShortMessage(byte[] data) {
+	protected ShortMessage(@NonNull byte[] data) {
 		super(data);
 	}
 
+    /**
+     * Constructor with the kind of message
+     *
+     * @param status the status data
+     * @throws InvalidMidiDataException
+     */
+    public ShortMessage(int status) throws InvalidMidiDataException {
+        super(null);
+        setMessage(status);
+    }
+
+    /**
+     * Constructor with the entire information of message
+     *
+     * @param status the status data
+     * @param data1 the first data
+     * @param data2 the second data
+     * @throws InvalidMidiDataException
+     */
+    public ShortMessage(int status, int data1, int data2) throws InvalidMidiDataException {
+        super(null);
+        setMessage(status, data1, data2);
+    }
+
+    /**
+     * Constructor with the entire information of message
+     *
+     * @param command the command
+     * @param channel the channel
+     * @param data1 the first data
+     * @param data2 the second data
+     * @throws InvalidMidiDataException
+     */
+    public ShortMessage(int command, int channel, int data1, int data2) throws InvalidMidiDataException {
+        super(null);
+        setMessage(command, channel, data1, data2);
+    }
+
 	/**
 	 * Set the kind of message.
-	 * 
-	 * @param status
+	 *
+     * @param status the status data
 	 * @throws InvalidMidiDataException
 	 */
 	public void setMessage(int status) throws InvalidMidiDataException {
@@ -61,11 +101,11 @@ public class ShortMessage extends MidiMessage {
 	}
 
 	/**
-	 * Set the entire informations of message.
+	 * Set the entire information of message.
 	 * 
-	 * @param status
-	 * @param data1
-	 * @param data2
+	 * @param status the status data
+     * @param data1 the first data
+     * @param data2 the second data
 	 * @throws InvalidMidiDataException
 	 */
 	public void setMessage(int status, int data1, int data2) throws InvalidMidiDataException {
@@ -81,9 +121,10 @@ public class ShortMessage extends MidiMessage {
 			}
 		}
 		
-		if (data == null || data.length < dataLength + 1) {
+		if (data == null || data.length != dataLength + 1) {
 			data = new byte[dataLength + 1];
 		}
+        length = data.length;
 
 		data[0] = (byte) (status & 0xff);
 		if (data.length > 1) {
@@ -95,12 +136,12 @@ public class ShortMessage extends MidiMessage {
 	}
 
 	/**
-	 * Set the entire informations of message.
+	 * Set the entire information of message.
 	 * 
-	 * @param command
-	 * @param channel
-	 * @param data1
-	 * @param data2
+	 * @param command the command
+	 * @param channel the channel
+	 * @param data1 the first data
+	 * @param data2 the second data
 	 * @throws InvalidMidiDataException
 	 */
 	public void setMessage(int command, int channel, int data1, int data2) throws InvalidMidiDataException {
@@ -116,7 +157,7 @@ public class ShortMessage extends MidiMessage {
 	/**
 	 * Get the channel of this message.
 	 * 
-	 * @return
+	 * @return the channel
 	 */
 	public int getChannel() {
 		return (getStatus() & 0x0f);
@@ -125,7 +166,7 @@ public class ShortMessage extends MidiMessage {
 	/**
 	 * Get the kind of command for this message.
 	 * 
-	 * @return
+	 * @return the kind of command
 	 */
 	public int getCommand() {
 		return (getStatus() & 0xf0);
@@ -134,7 +175,7 @@ public class ShortMessage extends MidiMessage {
 	/**
 	 * Get the first data for this message.
 	 * 
-	 * @return
+	 * @return the first data
 	 */
 	public int getData1() {
 		if (data.length > 1) {
@@ -146,7 +187,7 @@ public class ShortMessage extends MidiMessage {
 	/**
 	 * Get the second data for this message.
 	 * 
-	 * @return
+	 * @return the second data
 	 */
 	public int getData2() {
 		if (data.length > 2) {
@@ -155,10 +196,6 @@ public class ShortMessage extends MidiMessage {
 		return 0;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#clone()
-	 */
 	@Override
 	public Object clone() {
 		byte[] result = new byte[data.length];
@@ -166,7 +203,14 @@ public class ShortMessage extends MidiMessage {
 		return new ShortMessage(result);
 	}
 
-	protected final static int getDataLength(int status) throws InvalidMidiDataException {
+    /**
+     * Get data length of MIDI message from MIDI event status
+     *
+     * @param status MIDI event status
+     * @return length of MIDI message
+     * @throws InvalidMidiDataException
+     */
+	protected static int getDataLength(int status) throws InvalidMidiDataException {
 		switch (status) {
 			case TUNE_REQUEST:
 			case END_OF_EXCLUSIVE:

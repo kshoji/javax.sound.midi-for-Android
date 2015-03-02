@@ -1,11 +1,14 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Represents the MIDI File Format.
+ * Represents MIDI File Format
  * 
  * @author K.Shoji
  */
@@ -22,6 +25,19 @@ public class MidiFileFormat {
 	protected int type;
 	private HashMap<String, Object> properties;
 
+    /**
+     * Constructor without properties
+     *
+     * @param type 0(SMF 0), or 1(SMF 1)
+     * @param divisionType {@link Sequence#PPQ}, {@link Sequence#SMPTE_24}, {@link Sequence#SMPTE_25}, {@link Sequence#SMPTE_30DROP}, or {@link Sequence#SMPTE_30}.
+     * @param resolution
+     * <ul>
+     * 	<li>divisionType == {@link Sequence#PPQ} : 0 - 0x7fff. typically 24, 480</li>
+     * 	<li>divisionType == {@link Sequence#SMPTE_24}, {@link Sequence#SMPTE_25}, {@link Sequence#SMPTE_30DROP}, {@link Sequence#SMPTE_30} : 0 - 0xff</li>
+     * </ul>
+     * @param bytes the length of file
+     * @param microseconds the length of time(in micro seconds)
+     */
 	public MidiFileFormat(int type, float divisionType, int resolution, int bytes, long microseconds) {
 		this.type = type;
 		this.divisionType = divisionType;
@@ -31,21 +47,29 @@ public class MidiFileFormat {
 		this.properties = new HashMap<String, Object>();
 	}
 
-	public MidiFileFormat(int type, float divisionType, int resolution, int bytes, long microseconds, Map<String, Object> properties) {
-		this.type = type;
-		this.divisionType = divisionType;
-		this.resolution = resolution;
-		this.byteLength = bytes;
-		this.microsecondLength = microseconds;
-
-		this.properties = new HashMap<String, Object>();
+    /**
+     * Constructor with properties
+     *
+     * @param type 0(SMF 0), or 1(SMF 1)
+     * @param divisionType {@link Sequence#PPQ}, {@link Sequence#SMPTE_24}, {@link Sequence#SMPTE_25}, {@link Sequence#SMPTE_30DROP}, or {@link Sequence#SMPTE_30}.
+     * @param resolution
+     * <ul>
+     * 	<li>divisionType == {@link Sequence#PPQ} : 0 - 0x7fff. typically 24, 480</li>
+     * 	<li>divisionType == {@link Sequence#SMPTE_24}, {@link Sequence#SMPTE_25}, {@link Sequence#SMPTE_30DROP}, {@link Sequence#SMPTE_30} : 0 - 0xff</li>
+     * </ul>
+     * @param bytes the length of file
+     * @param microseconds the length of time(in micro seconds)
+     * @param properties the properties
+     */
+	public MidiFileFormat(int type, float divisionType, int resolution, int bytes, long microseconds, @NonNull Map<String, Object> properties) {
+        this(type, divisionType, resolution, bytes, microseconds);
 		this.properties.putAll(properties);
 	}
 
 	/**
 	 * Get the length of {@link MidiFileFormat}
 	 * 
-	 * @return
+	 * @return the length
 	 */
 	public int getByteLength() {
 		return byteLength;
@@ -54,7 +78,7 @@ public class MidiFileFormat {
 	/**
 	 * Get the division type of {@link MidiFileFormat}
 	 * 
-	 * @return
+	 * @return the division type
 	 */
 	public float getDivisionType() {
 		return divisionType;
@@ -63,26 +87,27 @@ public class MidiFileFormat {
 	/**
 	 * Get the length in microseconds of {@link MidiFileFormat}
 	 * 
-	 * @return
+	 * @return the length in microseconds
 	 */
 	public long getMicrosecondLength() {
 		return microsecondLength;
 	}
 
 	/**
-	 * Get property of {@link MidiFileFormat}
+	 * Get the property of {@link MidiFileFormat}
 	 * 
-	 * @param key
-	 * @return
+	 * @param key the property name
+	 * @return the property
 	 */
-	public Object getProperty(String key) {
+    @Nullable
+    public Object getProperty(String key) {
 		return properties.get(key);
 	}
 
 	/**
 	 * Get the resolution of {@link MidiFileFormat}
 	 * 
-	 * @return
+	 * @return the resolution
 	 */
 	public int getResolution() {
 		return resolution;
@@ -91,7 +116,7 @@ public class MidiFileFormat {
 	/**
 	 * Get the type of {@link MidiFileFormat}
 	 * 
-	 * @return
+	 * @return the type
 	 */
 	public int getType() {
 		return type;
@@ -100,9 +125,10 @@ public class MidiFileFormat {
 	/**
 	 * Get properties {@link Map} of {@link MidiFileFormat}
 	 * 
-	 * @return
+	 * @return properties {@link Map}
 	 */
-	public Map<String, Object> properties() {
+    @NonNull
+    public Map<String, Object> properties() {
 		return Collections.unmodifiableMap(properties);
 	}
 }

@@ -1,49 +1,107 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+/**
+ * Abstract class for MIDI Message
+ *
+ * @author K.Shoji
+ */
 public abstract class MidiMessage implements Cloneable {
 	protected byte[] data;
+    protected int length;
 
-	protected MidiMessage(byte[] data) {
+    /**
+     * Constructor with the raw data
+     *
+     * @param data the raw data
+     */
+	protected MidiMessage(@Nullable byte[] data) {
 		this.data = data;
+
+        if (data == null) {
+            length = 0;
+        } else {
+            length = data.length;
+        }
 	}
 
 	/**
-	 * 
-	 * @param data
+     * Constructor with the raw data, and its length
+	 *
+	 * @param data the raw data
 	 * @param length unused parameter. Use always data.length
 	 * @throws InvalidMidiDataException
 	 */
-	protected void setMessage(byte[] data, int length) throws InvalidMidiDataException {
-		if (this.data == null || this.data.length != data.length) {
-			this.data = new byte[data.length];
-		}
-		System.arraycopy(data, 0, this.data, 0, data.length);
+    public void setMessage(@Nullable byte[] data, int length) throws InvalidMidiDataException {
+        if (data == null) {
+            this.data = null;
+            this.length = 0;
+        } else {
+            if (this.data.length != data.length) {
+                this.data = new byte[data.length];
+            }
+
+            this.length = data.length;
+            System.arraycopy(data, 0, this.data, 0, data.length);
+        }
 	}
 
-	public byte[] getMessage() {
+    /**
+     * Get the message source data
+     *
+     * @return the message source data
+     */
+    @Nullable
+    public byte[] getMessage() {
 		if (data == null) {
 			return null;
 		}
+
 		byte[] resultArray = new byte[data.length];
 		System.arraycopy(data, 0, resultArray, 0, data.length);
 		return resultArray;
 	}
 
+    /**
+     * Get the status of the {@link MidiMessage}
+     *
+     * @return the status
+     */
 	public int getStatus() {
-		if (data != null && data.length > 0) {
-			return (data[0] & 0xff);
-		}
-		return 0;
+		if (data == null || data.length < 1) {
+            return 0;
+        }
+
+        return data[0] & 0xff;
 	}
 
+    /**
+     * Get the length of the {@link MidiMessage}
+     *
+     * @return the length
+     */
 	public int getLength() {
 		if (data == null) {
 			return 0;
 		}
+
 		return data.length;
 	}
 
-	static String toHexString(byte[] src) {
+    /**
+     * Convert the byte array to the hex dumped string
+     *
+     * @param src the byte array
+     * @return hex dumped string
+     */
+    @NonNull
+    static String toHexString(@Nullable byte[] src) {
+        if (src == null) {
+            return "null";
+        }
+
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("[");
 		boolean needComma = false;
@@ -51,7 +109,7 @@ public abstract class MidiMessage implements Cloneable {
 			if (needComma) {
 				buffer.append(", ");
 			}
-			buffer.append(String.format("%02x", Integer.valueOf(srcByte & 0xff)));
+			buffer.append(String.format("%02x", srcByte & 0xff));
 			needComma = true;
 		}
 		buffer.append("]");
@@ -64,9 +122,10 @@ public abstract class MidiMessage implements Cloneable {
 		return getClass().getName() + ":" + toHexString(data);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#clone()
-	 */
+    /**
+     * Clone the object
+     *
+     * @return the clone of this object instance
+     */
 	public abstract Object clone();
 }

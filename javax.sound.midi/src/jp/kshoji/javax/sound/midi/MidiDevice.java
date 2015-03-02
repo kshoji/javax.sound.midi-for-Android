@@ -1,9 +1,24 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.util.List;
 
+/**
+ * Interface for MIDI Device
+ *
+ * @author K.Shoji
+ */
 public interface MidiDevice {
-	Info getDeviceInfo();
+
+    /**
+     * Get the device information
+     *
+     * @return the device information
+     */
+    @NonNull
+    Info getDeviceInfo();
 
 	/**
 	 * Open the {@link MidiDevice}. This method must be called at getting the new instance.
@@ -20,7 +35,7 @@ public interface MidiDevice {
 	/**
 	 * Check if the {@link MidiDevice} opened.
 	 * 
-	 * @return
+	 * @return true if already opened
 	 */
 	boolean isOpen();
 
@@ -33,49 +48,53 @@ public interface MidiDevice {
 	/**
 	 * Get the number of the {@link Receiver}s. 
 	 * 
-	 * @return
+	 * @return the number of the {@link Receiver}s.
 	 */
 	int getMaxReceivers();
 
 	/**
 	 * Get the number of the {@link Transmitter}s. 
 	 * 
-	 * @return
+	 * @return the number of the {@link Transmitter}s.
 	 */
 	int getMaxTransmitters();
 
 	/**
-	 * Get the default {@link Receiver}
+	 * Get the default {@link Receiver}.
 	 * 
-	 * @return
+	 * @return the default {@link Receiver}.
 	 * @throws MidiUnavailableException
 	 */
-	Receiver getReceiver() throws MidiUnavailableException;
+	@Nullable
+    Receiver getReceiver() throws MidiUnavailableException;
 
 	/**
-	 * Get the all of {@link Receiver}s
+	 * Get the all of {@link Receiver}s.
 	 * 
-	 * @return
+	 * @return the all of {@link Receiver}s.
 	 */
-	List<Receiver> getReceivers();
+    @NonNull
+    List<Receiver> getReceivers();
 
 	/**
-	 * Get the default {@link Transmitter}
+	 * Get the default {@link Transmitter}.
 	 * 
-	 * @return
+	 * @return the default {@link Transmitter}.
 	 * @throws MidiUnavailableException
 	 */
-	Transmitter getTransmitter() throws MidiUnavailableException;
+    @Nullable
+    Transmitter getTransmitter() throws MidiUnavailableException;
 
 	/**
-	 * Get the all of {@link Transmitter}s
+	 * Get the all of {@link Transmitter}s.
 	 * 
-	 * @return
+	 * @return the all of {@link Transmitter}s.
 	 */
-	List<Transmitter> getTransmitters();
+    @NonNull
+    List<Transmitter> getTransmitters();
 
 	/**
-	 * Represents {@link MidiDevice}'s informations
+	 * Represents the {@link MidiDevice}'s information
 	 *
 	 * @author K.Shoji
 	 */
@@ -85,7 +104,15 @@ public interface MidiDevice {
 		private String description;
 		private String version;
 
-		public Info(String name, String vendor, String description, String version) {
+        /**
+         * Constructor
+         *
+         * @param name the name string
+         * @param vendor the vendor string
+         * @param description the description string
+         * @param version the version string
+         */
+		public Info(@NonNull String name, @NonNull String vendor, @NonNull String description, @NonNull String version) {
 			this.name = name;
 			this.vendor = vendor;
 			this.description = description;
@@ -95,41 +122,46 @@ public interface MidiDevice {
 		/**
 		 * Get the name of {@link MidiDevice}
 		 * 
-		 * @return
+		 * @return the name of {@link MidiDevice}
 		 */
-		public final String getName() {
+        @NonNull
+        public final String getName() {
 			return name;
 		}
 
 		/**
 		 * Get the vendor of {@link MidiDevice}
 		 * 
-		 * @return
+		 * @return the vendor of {@link MidiDevice}
 		 */
-		public final String getVendor() {
+        @NonNull
+        public final String getVendor() {
 			return vendor;
 		}
 
 		/**
 		 * Get the description of {@link MidiDevice}
 		 * 
-		 * @return
+		 * @return the description of {@link MidiDevice}
 		 */
-		public final String getDescription() {
+        @NonNull
+        public final String getDescription() {
 			return description;
 		}
 
 		/**
 		 * Get the version of {@link MidiDevice}
 		 * 
-		 * @return
+		 * @return the version of {@link MidiDevice}
 		 */
-		public final String getVersion() {
+        @NonNull
+        public final String getVersion() {
 			return version;
 		}
 
+        @NonNull
 		@Override
-		public final String toString() {
+        public final String toString() {
 			return name;
 		}
 

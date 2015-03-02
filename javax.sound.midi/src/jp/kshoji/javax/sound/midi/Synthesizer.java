@@ -1,33 +1,130 @@
 package jp.kshoji.javax.sound.midi;
 
-public interface Synthesizer extends MidiDevice {
-    Instrument[] getAvailableInstruments();
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
+/**
+ * Interface for MIDI Synthesizer
+ *
+ * @author K.Shoji
+ */
+public interface Synthesizer extends MidiDevice {
+
+    /**
+     * Get the all of {@link MidiChannel}s
+     *
+     * @return the array of MidiChannel
+     */
+    @NonNull
     MidiChannel[] getChannels();
 
-    Soundbank getDefaultSoundbank();
-
+    /**
+     * Get the latency in microseconds
+     *
+     * @return the latency in microseconds
+     */
     long getLatency();
 
-    Instrument[] getLoadedInstruments();
-
+    /**
+     * Get the maximum count of polyphony
+     *
+     * @return the maximum count of polyphony
+     */
     int getMaxPolyphony();
 
+    /**
+     * Get the current {@link VoiceStatus} of the Synthesizer
+     *
+     * @return the array of VoiceStatus
+     */
+    @NonNull
     VoiceStatus[] getVoiceStatus();
 
-    boolean isSoundbankSupported(Soundbank soundbank);
+    /**
+     * Get the default {@link Soundbank}
+     *
+     * @return the Soundbank
+     */
+    @Nullable
+    Soundbank getDefaultSoundbank();
 
-    boolean loadAllInstruments(Soundbank soundbank);
+    /**
+     * Check if the specified {@link Soundbank} is supported
+     *
+     * @param soundbank the Soundbank
+     * @return true if the Soundbank is supported
+     */
+    boolean isSoundbankSupported(@NonNull Soundbank soundbank);
 
-    boolean loadInstrument(Instrument instrument);
+    /**
+     * Get the all available {@link Instrument}s
+     *
+     * @return the array of Instrument
+     */
+    @NonNull
+    Instrument[] getAvailableInstruments();
 
-    boolean loadInstruments(Soundbank soundbank, Patch[] patchList);
+    /**
+     * Get the all loaded {@link Instrument}s
+     *
+     * @return the array of Instrument
+     */
+    @NonNull
+    Instrument[] getLoadedInstruments();
 
-    boolean remapInstrument(Instrument from, Instrument to);
+    /**
+     * Remap an Instrument
+     *
+     * @param from to be replaced
+     * @param to the new Instrument
+     * @return true if succeed to remap
+     */
+    boolean remapInstrument(@NonNull Instrument from, @NonNull Instrument to);
 
-    void unloadAllInstruments(Soundbank soundbank);
+    /**
+     * Load all instruments belongs specified {@link Soundbank}
+     *
+     * @param soundbank the Soundbank
+     * @return true if succeed to load
+     */
+    boolean loadAllInstruments(@NonNull Soundbank soundbank);
 
-    void unloadInstrument(Instrument instrument);
+    /**
+     * Unload all instruments belongs specified {@link Soundbank}
+     *
+     * @param soundbank the Soundbank
+     */
+    void unloadAllInstruments(@NonNull Soundbank soundbank);
 
-    void unloadInstruments(Soundbank soundbank, Patch[] patchList);
+    /**
+     * Load the specified {@link Instrument}
+     *
+     * @param instrument the instrument
+     * @return true if succeed to load
+     */
+    boolean loadInstrument(@NonNull Instrument instrument);
+
+    /**
+     * Unload the specified {@link Instrument}
+     *
+     * @param instrument the instrument
+     */
+    void unloadInstrument(@NonNull Instrument instrument);
+
+    /**
+     * Load all instruments belongs specified {@link Soundbank} and {@link Patch}es
+     *
+     * @param soundbank the the Soundbank
+     * @param patchList the array of Patch
+     * @return true if succeed to load
+     */
+    boolean loadInstruments(@NonNull Soundbank soundbank, @NonNull Patch[] patchList);
+
+    /**
+     * Unload all instruments belongs specified {@link Soundbank} and {@link Patch}es
+     *
+     * @param soundbank the the Soundbank
+     * @param patchList the array of Patch
+     */
+    void unloadInstruments(@NonNull Soundbank soundbank, @NonNull Patch[] patchList);
 }

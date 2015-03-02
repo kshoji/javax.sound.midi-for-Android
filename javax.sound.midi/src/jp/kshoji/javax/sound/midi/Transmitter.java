@@ -1,25 +1,31 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.Nullable;
+
 /**
- * {@link MidiMessage} transmitter.
+ * Interface for MIDI Transmitter.
  * 
  * @author K.Shoji
  */
 public interface Transmitter {
+
 	/**
 	 * Set the {@link Receiver} for this {@link Transmitter}
-	 * @param receiver
+     *
+	 * @param receiver the Receiver
 	 */
-	void setReceiver(Receiver receiver);
+	void setReceiver(@Nullable Receiver receiver);
 
 	/**
 	 * Get the {@link Receiver} for this {@link Transmitter}
-	 * @return
+     *
+	 * @return the Receiver
 	 */
-	Receiver getReceiver();
+    @Nullable
+    Receiver getReceiver();
 
 	/**
-	 * Close the {@link Transmitter}
+	 * Close this {@link Transmitter}
 	 */
 	void close();
 }

@@ -1,5 +1,7 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.NonNull;
+
 import java.util.EventListener;
 
 /**
@@ -8,10 +10,11 @@ import java.util.EventListener;
  * @author K.Shoji
  */
 public interface MetaEventListener extends EventListener {
+
 	/**
 	 * Called at {@link MetaMessage} event has fired
 	 * 
-	 * @param meta
+	 * @param meta the source event
 	 */
-	void meta(MetaMessage meta);
+	void meta(@NonNull MetaMessage meta);
 }

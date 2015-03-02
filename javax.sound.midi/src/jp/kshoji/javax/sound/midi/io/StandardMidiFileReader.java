@@ -1,5 +1,8 @@
 package jp.kshoji.javax.sound.midi.io;
 
+import android.content.res.AssetManager.AssetInputStream;
+import android.support.annotation.NonNull;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -20,9 +23,19 @@ import jp.kshoji.javax.sound.midi.SysexMessage;
 import jp.kshoji.javax.sound.midi.Track;
 import jp.kshoji.javax.sound.midi.Track.TrackUtils;
 import jp.kshoji.javax.sound.midi.spi.MidiFileReader;
-import android.content.res.AssetManager.AssetInputStream;
 
+/**
+ * The implementation SMF reader
+ *
+ * @author K.Shoji
+ */
 public class StandardMidiFileReader extends MidiFileReader {
+
+    /**
+     * Represents Extended MIDI File format
+     *
+     * @author K.Shoji
+     */
 	class ExtendedMidiFileFormat extends MidiFileFormat {
 		private int numberOfTracks;
 
@@ -38,18 +51,12 @@ public class StandardMidiFileReader extends MidiFileReader {
 		/**
 		 * Create an {@link ExtendedMidiFileFormat} object from the given parameters.
 		 * 
-		 * @param type
-		 *            the MIDI file type (0, 1, or 2)
-		 * @param divisionType
-		 *            the MIDI file division type
-		 * @param resolution
-		 *            the MIDI file timing resolution
-		 * @param bytes
-		 *            the MIDI file size in bytes
-		 * @param microseconds
-		 *            the MIDI file length in microseconds
-		 * @param numberOfTracks
-		 *            the number of tracks
+		 * @param type the MIDI file type (0, 1, or 2)
+		 * @param divisionType the MIDI file division type
+		 * @param resolution the MIDI file timing resolution
+		 * @param bytes the MIDI file size in bytes
+		 * @param microseconds the MIDI file length in microseconds
+		 * @param numberOfTracks the number of tracks
 		 */
 		public ExtendedMidiFileFormat(int type, float divisionType, int resolution, int bytes, long microseconds, int numberOfTracks) {
 			super(type, divisionType, resolution, bytes, microseconds);
@@ -57,11 +64,28 @@ public class StandardMidiFileReader extends MidiFileReader {
 		}
 	}
 
+    /**
+     * Represents InputStream for MIDI Data
+     *
+     * @author K.Shoji
+     */
 	class MidiDataInputStream extends DataInputStream {
-		public MidiDataInputStream(InputStream inputStream) {
+
+        /**
+         * Constructor
+         *
+         * @param inputStream the source stream
+         */
+		public MidiDataInputStream(@NonNull InputStream inputStream) {
 			super(inputStream);
 		}
 
+        /**
+         * Read value from InputStream
+         *
+         * @return the variable
+         * @throws IOException
+         */
 		public int readVariableLengthInt() throws IOException {
 			int c;
 			int value = readByte();
@@ -76,13 +100,10 @@ public class StandardMidiFileReader extends MidiFileReader {
 			return value;
 		}
 	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see jp.kshoji.javax.sound.midi.spi.MidiFileReader#getMidiFileFormat(java.io.InputStream)
-	 */
-	@Override
-	public MidiFileFormat getMidiFileFormat(InputStream inputStream) throws InvalidMidiDataException, IOException {
+
+    @NonNull
+    @Override
+	public MidiFileFormat getMidiFileFormat(@NonNull InputStream inputStream) throws InvalidMidiDataException, IOException {
 		DataInputStream dataInputStream;
 		if (inputStream instanceof DataInputStream) {
 			dataInputStream = (DataInputStream) inputStream;
@@ -150,12 +171,9 @@ public class StandardMidiFileReader extends MidiFileReader {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see jp.kshoji.javax.sound.midi.spi.MidiFileReader#getMidiFileFormat(java.net.URL)
-	 */
-	@Override
-	public MidiFileFormat getMidiFileFormat(URL url) throws InvalidMidiDataException, IOException {
+	@NonNull
+    @Override
+	public MidiFileFormat getMidiFileFormat(@NonNull URL url) throws InvalidMidiDataException, IOException {
 		InputStream inputStream = url.openStream();
 		try {
 			return getMidiFileFormat(inputStream);
@@ -164,26 +182,20 @@ public class StandardMidiFileReader extends MidiFileReader {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see jp.kshoji.javax.sound.midi.spi.MidiFileReader#getMidiFileFormat(java.io.File)
-	 */
-	@Override
-	public MidiFileFormat getMidiFileFormat(File file) throws InvalidMidiDataException, IOException {
-		InputStream inputStram = new FileInputStream(file);
+	@NonNull
+    @Override
+	public MidiFileFormat getMidiFileFormat(@NonNull File file) throws InvalidMidiDataException, IOException {
+		InputStream inputStream = new FileInputStream(file);
 		try {
-			return getMidiFileFormat(inputStram);
+			return getMidiFileFormat(inputStream);
 		} finally {
-			inputStram.close();
+			inputStream.close();
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see jp.kshoji.javax.sound.midi.spi.MidiFileReader#getSequence(java.io.InputStream)
-	 */
-	@Override
-	public Sequence getSequence(InputStream inputStream) throws InvalidMidiDataException, IOException {
+	@NonNull
+    @Override
+	public Sequence getSequence(@NonNull InputStream inputStream) throws InvalidMidiDataException, IOException {
 		MidiDataInputStream midiDataInputStream = new MidiDataInputStream(convertToByteArrayInputStream(inputStream));
 		
 		try {
@@ -216,9 +228,9 @@ public class StandardMidiFileReader extends MidiFileReader {
 						if (runningStatus >= 0 && runningStatus < 0xf0) {
 							message = processRunningMessage(runningStatus, data, midiDataInputStream);
 						} else if (runningStatus >= 0xf0 && runningStatus <= 0xff) {
-							message = processSystemMessage(runningStatus, Integer.valueOf(data), midiDataInputStream);
+							message = processSystemMessage(runningStatus, data, midiDataInputStream);
 						} else {
-							throw new InvalidMidiDataException(String.format("Invalid data: %02x %02x", Integer.valueOf(runningStatus), Integer.valueOf(data)));
+							throw new InvalidMidiDataException(String.format("Invalid data: %02x %02x", runningStatus, data));
 						}
 					} else if (data < 0xf0) {
 						// Control messages
@@ -272,7 +284,18 @@ public class StandardMidiFileReader extends MidiFileReader {
 		}
 	}
 
-	private static ShortMessage processSystemMessage(int data1, Integer data2, MidiDataInputStream midiDataInputStream) throws InvalidMidiDataException, IOException {
+    /**
+     * Process the {@link SysexMessage}
+     *
+     * @param data1 the first data
+     * @param data2 the second data
+     * @param midiDataInputStream the InputStream
+     * @return the processed MIDI message
+     * @throws InvalidMidiDataException invalid MIDI data inputted
+     * @throws IOException
+     */
+    @NonNull
+	private static ShortMessage processSystemMessage(int data1, Integer data2, @NonNull MidiDataInputStream midiDataInputStream) throws InvalidMidiDataException, IOException {
 		ShortMessage shortMessage;
 		switch (data1) {
 		case ShortMessage.SONG_POSITION_POINTER://f2
@@ -280,7 +303,7 @@ public class StandardMidiFileReader extends MidiFileReader {
 			if (data2 == null) {
 				shortMessage.setMessage(data1, midiDataInputStream.readUnsignedByte(), midiDataInputStream.readUnsignedByte());
 			} else {
-				shortMessage.setMessage(data1, data2.intValue(), midiDataInputStream.readUnsignedByte());
+				shortMessage.setMessage(data1, data2, midiDataInputStream.readUnsignedByte());
 			}
 			break;
 			
@@ -290,7 +313,7 @@ public class StandardMidiFileReader extends MidiFileReader {
 			if (data2 == null) {
 				shortMessage.setMessage(data1, midiDataInputStream.readUnsignedByte(), 0);
 			} else {
-				shortMessage.setMessage(data1, data2.intValue(), 0);
+				shortMessage.setMessage(data1, data2, 0);
 			}
 			break;
 		
@@ -309,12 +332,23 @@ public class StandardMidiFileReader extends MidiFileReader {
 			break;
 		
 		default://f1, f9, fd
-			throw new InvalidMidiDataException(String.format("Invalid data: %02x", Integer.valueOf(data1)));
+			throw new InvalidMidiDataException(String.format("Invalid data: %02x", data1));
 		}
 		return shortMessage;
 	}
 
-	private static ShortMessage processRunningMessage(int status, int data1, MidiDataInputStream midiDataInputStream) throws InvalidMidiDataException, IOException {
+    /**
+     * Process the MIDI running message
+     *
+     * @param status running status
+     * @param data1 the first data
+     * @param midiDataInputStream the InputStream
+     * @return the processed MIDI message
+     * @throws InvalidMidiDataException invalid MIDI data inputted
+     * @throws IOException
+     */
+    @NonNull
+    private static ShortMessage processRunningMessage(int status, int data1, @NonNull MidiDataInputStream midiDataInputStream) throws InvalidMidiDataException, IOException {
 		ShortMessage shortMessage;
 		switch (status & ShortMessage.MASK_EVENT) {
 		case ShortMessage.NOTE_OFF://80
@@ -333,7 +367,7 @@ public class StandardMidiFileReader extends MidiFileReader {
 			break;
 
 		default:
-			throw new InvalidMidiDataException(String.format("Invalid data: %02x %02x", Integer.valueOf(status), Integer.valueOf(data1)));
+			throw new InvalidMidiDataException(String.format("Invalid data: %02x %02x", status, data1));
 		}
 		
 		return shortMessage;
@@ -342,11 +376,12 @@ public class StandardMidiFileReader extends MidiFileReader {
 	/**
 	 * Convert inputStream into {@link ByteArrayInputStream}
 	 * 
-	 * @param inputStream
-	 * @return
+	 * @param inputStream the {@link InputStream} instance
+	 * @return the {@link ByteArrayInputStream}
 	 * @throws IOException
 	 */
-	private static ByteArrayInputStream convertToByteArrayInputStream(InputStream inputStream) throws IOException {
+    @NonNull
+    private static ByteArrayInputStream convertToByteArrayInputStream(@NonNull InputStream inputStream) throws IOException {
 		if (inputStream instanceof ByteArrayInputStream) {
 			// already ByteArrayInputStream
 			return (ByteArrayInputStream) inputStream;
@@ -358,17 +393,13 @@ public class StandardMidiFileReader extends MidiFileReader {
 		while ((readBytes = inputStream.read(buffer)) >= 0) {
 			outputStream.write(buffer, 0, readBytes);
 		}
-		
-		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(outputStream.toByteArray());
-		return byteArrayInputStream;
+
+        return new ByteArrayInputStream(outputStream.toByteArray());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see jp.kshoji.javax.sound.midi.spi.MidiFileReader#getSequence(java.net.URL)
-	 */
-	@Override
-	public Sequence getSequence(URL url) throws InvalidMidiDataException, IOException {
+	@NonNull
+    @Override
+	public Sequence getSequence(@NonNull URL url) throws InvalidMidiDataException, IOException {
 		InputStream inputStream = url.openStream();
 		try {
 			return getSequence(inputStream);
@@ -377,12 +408,9 @@ public class StandardMidiFileReader extends MidiFileReader {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see jp.kshoji.javax.sound.midi.spi.MidiFileReader#getSequence(java.io.File)
-	 */
-	@Override
-	public Sequence getSequence(File file) throws InvalidMidiDataException, IOException {
+	@NonNull
+    @Override
+	public Sequence getSequence(@NonNull File file) throws InvalidMidiDataException, IOException {
 		InputStream inputStream = new FileInputStream(file);
 		try {
 			return getSequence(inputStream);

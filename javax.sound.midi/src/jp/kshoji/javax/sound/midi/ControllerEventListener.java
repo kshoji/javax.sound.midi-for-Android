@@ -1,5 +1,7 @@
 package jp.kshoji.javax.sound.midi;
 
+import android.support.annotation.NonNull;
+
 import java.util.EventListener;
 
 /**
@@ -8,10 +10,11 @@ import java.util.EventListener;
  * @author K.Shoji
  */
 public interface ControllerEventListener extends EventListener {
+
 	/**
 	 * Called at {@link ShortMessage} event has fired
 	 * 
-	 * @param event
+	 * @param event the source message
 	 */
-	void controlChange(ShortMessage event);
+	void controlChange(@NonNull ShortMessage event);
 }
