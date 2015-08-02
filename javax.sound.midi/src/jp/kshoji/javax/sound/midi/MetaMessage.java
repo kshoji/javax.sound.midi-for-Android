@@ -23,7 +23,7 @@ public class MetaMessage extends MidiMessage {
 	 * Constructor with default message
 	 */
 	public MetaMessage() {
-		this(defaultMessage);
+		super(defaultMessage);
 	}
 
 	/**
