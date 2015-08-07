@@ -122,11 +122,10 @@ public class MetaMessage extends MidiMessage {
 		return returnedArray;
 	}
 
-    @NonNull
+    @SuppressWarnings("CloneDoesntCallSuperClone")
+	@NonNull
 	@Override
 	public Object clone() {
-		super.clone();
-
 		byte[] result = new byte[data.length];
 		System.arraycopy(data, 0, result, 0, data.length);
 		return new MetaMessage(result);
