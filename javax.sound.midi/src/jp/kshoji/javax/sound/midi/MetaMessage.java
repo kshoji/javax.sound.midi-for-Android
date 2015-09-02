@@ -15,7 +15,7 @@ public class MetaMessage extends MidiMessage {
 	public static final int TYPE_END_OF_TRACK = 0x2f;
 	public static final int TYPE_TEMPO = 0x51;
 	
-	private static final byte[] defaultMessage = { (byte) META, 0 };
+	private static final byte[] defaultMessage = { (byte) META, 0, 0 };
 
 	private int dataLength = 0;
 
@@ -29,18 +29,15 @@ public class MetaMessage extends MidiMessage {
 	/**
 	 * Constructor with raw data
 	 * 
-	 * @param data the data source with META header(2 bytes), the length must be longer than 2 bytes
-	 * @throws NegativeArraySizeException MUST be caught. We can't throw {@link InvalidMidiDataException} because of API compatibility.
+	 * @param data the data source with META header(2 bytes) + length( > 1 byte), the data.length must be >= 3 bytes
+     * @throws NegativeArraySizeException MUST be caught. We can't throw {@link InvalidMidiDataException} because of API compatibility.
 	 */
-	protected MetaMessage(@NonNull byte[] data) throws NegativeArraySizeException {
+	protected MetaMessage(@NonNull byte[] data) {
 		super(data);
 
-        if (data.length < 2) {
-            // 'dataLength' may negative value. Negative 'dataLength' will throw NegativeArraySizeException when getData() called.
-            throw new NegativeArraySizeException("Invalid meta event. data: " + Arrays.toString(data));
-        } else {
-            // check length
-			dataLength = data.length - 2;
+		if (data.length >= 3) {
+			// check length
+			dataLength = data.length - 3;
 			int pos = 2;
 			while (pos < data.length && (data[pos] & 0x80) != 0) {
 				dataLength--;
