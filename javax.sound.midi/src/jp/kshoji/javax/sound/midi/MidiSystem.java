@@ -31,7 +31,7 @@ public final class MidiSystem {
      *
      * @param midiDevice the device to add
      */
-    static void addMidiDevice(@NonNull MidiDevice midiDevice) {
+    public static void addMidiDevice(@NonNull MidiDevice midiDevice) {
         synchronized (midiDevices) {
             midiDevices.add(midiDevice);
         }
@@ -42,7 +42,7 @@ public final class MidiSystem {
      *
      * @param midiDevice the device to remove
      */
-    static void removeMidiDevice(@NonNull MidiDevice midiDevice) {
+    public static void removeMidiDevice(@NonNull MidiDevice midiDevice) {
         synchronized (midiDevices) {
             midiDevices.remove(midiDevice);
         }
