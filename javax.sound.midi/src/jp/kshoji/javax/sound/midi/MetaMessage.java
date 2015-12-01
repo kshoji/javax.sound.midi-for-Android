@@ -1,6 +1,7 @@
 package jp.kshoji.javax.sound.midi;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.Arrays;
 
@@ -59,7 +60,7 @@ public class MetaMessage extends MidiMessage {
      * @param length unused parameter. Use always data.length
      * @throws InvalidMidiDataException
      */
-    public MetaMessage(int type, @NonNull byte[] data, int length) throws InvalidMidiDataException {
+    public MetaMessage(int type, @Nullable byte[] data, int length) throws InvalidMidiDataException {
         super(null);
         setMessage(type, data, length);
     }
@@ -72,9 +73,13 @@ public class MetaMessage extends MidiMessage {
 	 * @param length unused parameter. Use always data.length
 	 * @throws InvalidMidiDataException
 	 */
-	public void setMessage(int type, @NonNull byte[] data, int length) throws InvalidMidiDataException {
+	public void setMessage(int type, @Nullable byte[] data, int length) throws InvalidMidiDataException {
 		if (type >= 128 || type < 0) {
 			throw new InvalidMidiDataException("Invalid meta event. type: " + type);
+		}
+
+		if (data == null) {
+			data = new byte[] {};
 		}
 
         int headerLength = 2 + getMidiValuesLength(data.length);
