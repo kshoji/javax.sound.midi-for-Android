@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
-    compile 'com.android.support:support-annotations:21.0.3'
+    compile 'com.android.support:support-annotations:23.1.1'
 }
 
 android {
@@ -39,7 +39,7 @@ group = 'jp.kshoji'
 uploadArchives {
     repositories.mavenDeployer {
         repository url: 'file://' + file('repository').absolutePath
-        pom.version = '0.0.2'
+        pom.version = '0.0.3'
         pom.artifactId = 'javax-sound-midi'
     }
 }
