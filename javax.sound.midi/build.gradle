@@ -7,7 +7,7 @@ dependencies {
 
 android {
     compileSdkVersion 12
-    buildToolsVersion "21.1.2"
+    buildToolsVersion "23.0.2"
 
     sourceSets {
         main {
@@ -39,7 +39,7 @@ group = 'jp.kshoji'
 uploadArchives {
     repositories.mavenDeployer {
         repository url: 'file://' + file('repository').absolutePath
-        pom.version = '0.0.2'
+        pom.version = '0.0.3'
         pom.artifactId = 'javax-sound-midi'
     }
 }
