@@ -329,8 +329,8 @@ public class SequencerImpl implements Sequencer {
                                 } else if (midiMessage instanceof SysexMessage) {
                                     // process system messages
                                     for (Receiver receiver : receivers) {
-                                        receiver.send(midiMessage, 0);
-                                    }
+                                            receiver.send(midiMessage, 0);
+                                        }
                                 } else if (midiMessage instanceof ShortMessage) {
                                     // process control change / program change messages
                                     ShortMessage shortMessage = (ShortMessage) midiMessage;
@@ -529,18 +529,11 @@ public class SequencerImpl implements Sequencer {
     public void close() {
         // FIXME frequently calling 'close and open' causes app freeze(can't stop playing)
 
-        // close devices
         synchronized (receivers) {
-            for (Receiver receiver : receivers) {
-                receiver.close();
-            }
             receivers.clear();
         }
 
         synchronized (transmitters) {
-            for (Transmitter transmitter : transmitters) {
-                transmitter.close();
-            }
             transmitters.clear();
         }
 
@@ -579,13 +572,14 @@ public class SequencerImpl implements Sequencer {
         }
     }
 
+    @NonNull
     @Override
     public Receiver getReceiver() throws MidiUnavailableException {
         synchronized (receivers) {
-            if (receivers.size() > 0) {
-                return receivers.get(0);
+            if (receivers.isEmpty()) {
+                throw new MidiUnavailableException("Receiver not found");
             } else {
-                return null;
+                return receivers.get(0);
             }
         }
     }
@@ -598,13 +592,14 @@ public class SequencerImpl implements Sequencer {
         }
     }
 
+    @NonNull
     @Override
     public Transmitter getTransmitter() throws MidiUnavailableException {
         synchronized (transmitters) {
-            if (transmitters.size() > 0) {
-                return transmitters.get(0);
+            if (transmitters.isEmpty()) {
+                throw new MidiUnavailableException("Transmitter not found");
             } else {
-                return null;
+                return transmitters.get(0);
             }
         }
     }
@@ -786,10 +781,10 @@ public class SequencerImpl implements Sequencer {
     }
 
     @Override
-    public void setSequence(@Nullable Sequence sequence) throws InvalidMidiDataException {
+    public void setSequence(@Nullable final Sequence sequence) throws InvalidMidiDataException {
         this.sequence = sequence;
 
-        if (sequence != null) {
+        if (sequencerThread != null && sequence != null) {
             sequencerThread.needRefreshPlayingTrack = true;
         }
     }
@@ -859,12 +854,17 @@ public class SequencerImpl implements Sequencer {
 
     @Override
     public long getTickPosition() {
+        if (sequencerThread == null) {
+            return 0;
+        }
         return sequencerThread.getTickPosition();
     }
 
     @Override
-    public void setTickPosition(long tick) {
-        sequencerThread.setTickPosition(tick);
+    public void setTickPosition(final long tick) {
+        if (sequencerThread != null) {
+            sequencerThread.setTickPosition(tick);
+        }
     }
 
     @Override
@@ -923,8 +923,10 @@ public class SequencerImpl implements Sequencer {
     @Override
     public void startRecording() {
         // start playing AND recording
-        sequencerThread.startRecording();
-        sequencerThread.startPlaying();
+        if (sequencerThread != null) {
+            sequencerThread.startRecording();
+            sequencerThread.startPlaying();
+        }
     }
 
     @Override
@@ -935,13 +937,17 @@ public class SequencerImpl implements Sequencer {
     @Override
     public void stopRecording() {
         // stop recording
-        sequencerThread.stopRecording();
+        if (sequencerThread != null) {
+            sequencerThread.stopRecording();
+        }
     }
 
     @Override
     public void start() {
         // start playing
-        sequencerThread.startPlaying();
+        if (sequencerThread != null) {
+            sequencerThread.startPlaying();
+        }
     }
 
     @Override
@@ -952,7 +958,9 @@ public class SequencerImpl implements Sequencer {
     @Override
     public void stop() {
         // stop playing AND recording
-        sequencerThread.stopRecording();
-        sequencerThread.stopPlaying();
+        if (sequencerThread != null) {
+            sequencerThread.stopRecording();
+            sequencerThread.stopPlaying();
+        }
     }
 }
