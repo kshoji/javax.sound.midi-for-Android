@@ -21,13 +21,20 @@ public class Sequence {
 	protected int resolution;
 	protected Vector<Track> tracks;
 
+	private static final float[] SUPPORTING_DIVISION_TYPES = {PPQ, SMPTE_24, SMPTE_25, SMPTE_30, SMPTE_30DROP};
+
 	/**
 	 * Check if the divisionType supported
 	 * @param divisionType the divisionType
 	 * @return true if the specified divisionType is supported
 	 */
-	private static boolean isSupportingDivisionType(float divisionType) {
-		return divisionType == Sequence.PPQ || divisionType == Sequence.SMPTE_24 || divisionType == Sequence.SMPTE_25 || divisionType == Sequence.SMPTE_30 || divisionType == Sequence.SMPTE_30DROP;
+	private static boolean isSupportingDivisionType(final float divisionType) {
+		for (final float supportingDivisionType : SUPPORTING_DIVISION_TYPES) {
+			if (divisionType == supportingDivisionType) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 
@@ -42,14 +49,13 @@ public class Sequence {
 	 * </ul>
 	 * @throws InvalidMidiDataException
 	 */
-	public Sequence(float divisionType, int resolution) throws InvalidMidiDataException {
+	public Sequence(final float divisionType, final int resolution) throws InvalidMidiDataException {
 		if (isSupportingDivisionType(divisionType) == false) {
 			throw new InvalidMidiDataException("Unsupported division type: " + divisionType);
 		}
 		this.divisionType = divisionType;
 		this.resolution = resolution;
 		this.tracks = new Vector<Track>();
-
 	}
 
 	/**
@@ -64,7 +70,7 @@ public class Sequence {
 	 * @param numberOfTracks > 0
 	 * @throws InvalidMidiDataException
 	 */
-	public Sequence(float divisionType, int resolution, int numberOfTracks) throws InvalidMidiDataException {
+	public Sequence(final float divisionType, final int resolution, final int numberOfTracks) throws InvalidMidiDataException {
         this(divisionType, resolution);
 
 		if (numberOfTracks > 0) {
@@ -84,7 +90,7 @@ public class Sequence {
 		/*
 		 * new Tracks accrue to the end of vector
 		 */
-		Track track = new Track();
+		final Track track = new Track();
 		tracks.add(track);
 		return track;
 	}
@@ -95,7 +101,7 @@ public class Sequence {
 	 * @param track to delete
 	 * @return true if the track is successfully deleted
 	 */
-	public boolean deleteTrack(@Nullable Track track) {
+	public boolean deleteTrack(@Nullable final Track track) {
 		return tracks.remove(track);
 	}
 
@@ -149,7 +155,7 @@ public class Sequence {
 	 */
     @NonNull
     public Track[] getTracks() {
-		Track[] track = new Track[tracks.size()];
+		final Track[] track = new Track[tracks.size()];
 		tracks.toArray(track);
 		return track;
 	}

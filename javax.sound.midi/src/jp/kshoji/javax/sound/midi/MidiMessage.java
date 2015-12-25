@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
  * @author K.Shoji
  */
 public abstract class MidiMessage implements Cloneable {
+	@Nullable
 	protected byte[] data;
     protected int length;
 
@@ -17,7 +18,7 @@ public abstract class MidiMessage implements Cloneable {
      *
      * @param data the raw data
      */
-	protected MidiMessage(@Nullable byte[] data) {
+	protected MidiMessage(@Nullable final byte[] data) {
 		this.data = data;
 
         if (data == null) {
@@ -34,12 +35,12 @@ public abstract class MidiMessage implements Cloneable {
 	 * @param length unused parameter. Use always data.length
 	 * @throws InvalidMidiDataException
 	 */
-    public void setMessage(@Nullable byte[] data, int length) throws InvalidMidiDataException {
+    public void setMessage(@Nullable final byte[] data, final int length) throws InvalidMidiDataException {
         if (data == null) {
             this.data = null;
             this.length = 0;
         } else {
-            if (this.data.length != data.length) {
+            if (this.data == null || this.data.length != data.length) {
                 this.data = new byte[data.length];
             }
 
@@ -59,7 +60,7 @@ public abstract class MidiMessage implements Cloneable {
 			return null;
 		}
 
-		byte[] resultArray = new byte[data.length];
+		final byte[] resultArray = new byte[data.length];
 		System.arraycopy(data, 0, resultArray, 0, data.length);
 		return resultArray;
 	}
@@ -97,15 +98,15 @@ public abstract class MidiMessage implements Cloneable {
      * @return hex dumped string
      */
     @NonNull
-    static String toHexString(@Nullable byte[] src) {
+    static String toHexString(@Nullable final byte[] src) {
         if (src == null) {
             return "null";
         }
 
-		StringBuilder buffer = new StringBuilder();
+		final StringBuilder buffer = new StringBuilder();
 		buffer.append("[");
 		boolean needComma = false;
-		for (byte srcByte : src) {
+		for (final byte srcByte : src) {
 			if (needComma) {
 				buffer.append(", ");
 			}

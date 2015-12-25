@@ -33,7 +33,7 @@ public class SysexMessage extends MidiMessage {
      * @param length the data length
      * @throws InvalidMidiDataException
      */
-	public SysexMessage(@NonNull byte[] data, int length) throws InvalidMidiDataException {
+	public SysexMessage(@NonNull final byte[] data, final int length) throws InvalidMidiDataException {
 		super(null);
 		setMessage(data, length);
 	}
@@ -46,18 +46,18 @@ public class SysexMessage extends MidiMessage {
      * @param length unused parameter. Use always data.length
      * @throws InvalidMidiDataException
      */
-    public SysexMessage(int status, @NonNull byte[] data, int length) throws InvalidMidiDataException {
+    public SysexMessage(final int status, @NonNull final byte[] data, final int length) throws InvalidMidiDataException {
         super(null);
         setMessage(status, data, length);
     }
 
 	@Override
-	public void setMessage(@Nullable byte[] data, int length) throws InvalidMidiDataException {
+	public void setMessage(@Nullable final byte[] data, final int length) throws InvalidMidiDataException {
         if (data == null) {
             throw new InvalidMidiDataException("SysexMessage data is null");
         }
 
-		int status = (data[0] & 0xff);
+		final int status = data[0] & 0xff;
 		if ((status != ShortMessage.START_OF_EXCLUSIVE) && (status != ShortMessage.END_OF_EXCLUSIVE)) {
 			throw new InvalidMidiDataException("Invalid status byte for SysexMessage: 0x" + Integer.toHexString(status));
 		}
@@ -72,7 +72,7 @@ public class SysexMessage extends MidiMessage {
 	 * @param length unused parameter. Use always data.length
 	 * @throws InvalidMidiDataException
 	 */
-	public void setMessage(int status, @NonNull byte[] data, int length) throws InvalidMidiDataException {
+	public void setMessage(final int status, @NonNull final byte[] data, final int length) throws InvalidMidiDataException {
 		if ((status != ShortMessage.START_OF_EXCLUSIVE) && (status != ShortMessage.END_OF_EXCLUSIVE)) {
 			throw new InvalidMidiDataException("Invalid status byte for SysexMessage: 0x" + Integer.toHexString(status));
 		}
@@ -94,7 +94,7 @@ public class SysexMessage extends MidiMessage {
 	 */
     @NonNull
     public byte[] getData() {
-		byte[] result = new byte[data.length];
+		final byte[] result = new byte[data.length];
 		System.arraycopy(data, 0, result, 0, result.length);
 		return result;
 	}

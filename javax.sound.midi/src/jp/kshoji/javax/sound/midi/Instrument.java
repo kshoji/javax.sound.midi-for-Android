@@ -18,7 +18,7 @@ public abstract class Instrument extends SoundbankResource {
      * @param name the name
      * @param dataClass the dataClass
      */
-    protected Instrument(@NonNull Soundbank soundbank, @NonNull Patch patch, @NonNull String name, @NonNull Class<?> dataClass) {
+    protected Instrument(@NonNull final Soundbank soundbank, @NonNull final Patch patch, @NonNull final String name, @NonNull final Class<?> dataClass) {
         super(soundbank, name, dataClass);
         this.patch = patch;
     }

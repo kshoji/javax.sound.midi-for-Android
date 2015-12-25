@@ -8,7 +8,7 @@ import android.support.annotation.NonNull;
  * @author K.Shoji
  */
 public class MidiEvent {
-    private MidiMessage message;
+    private final MidiMessage message;
     
     private long tick;
    
@@ -18,7 +18,7 @@ public class MidiEvent {
      * @param message the message
      * @param tick -1 if timeStamp not supported.
      */
-    public MidiEvent(@NonNull MidiMessage message, long tick) {
+    public MidiEvent(@NonNull final MidiMessage message, final long tick) {
         this.message = message;
         this.tick = tick;
     }

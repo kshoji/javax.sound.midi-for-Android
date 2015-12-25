@@ -20,7 +20,7 @@ public abstract class SoundbankResource {
      * @param name the name of {@link SoundbankResource}
      * @param dataClass the class of data
      */
-    protected SoundbankResource(@NonNull Soundbank soundbank, @NonNull String name, @NonNull Class<?> dataClass) {
+    protected SoundbankResource(@NonNull final Soundbank soundbank, @NonNull final String name, @NonNull final Class<?> dataClass) {
         this.soundbank = soundbank;
         this.name = name;
         this.dataClass = dataClass;

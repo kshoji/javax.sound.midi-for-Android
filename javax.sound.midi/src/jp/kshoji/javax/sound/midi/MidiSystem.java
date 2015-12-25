@@ -9,9 +9,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import jp.kshoji.javax.sound.midi.MidiDevice.Info;
 import jp.kshoji.javax.sound.midi.impl.SequencerImpl;
@@ -24,7 +24,10 @@ import jp.kshoji.javax.sound.midi.io.StandardMidiFileWriter;
  * @author K.Shoji
  */
 public final class MidiSystem {
-	static final Set<MidiDevice> midiDevices = new HashSet<MidiDevice>();
+	private static final Collection<MidiDevice> midiDevices = new HashSet<MidiDevice>();
+    private static final Collection<Synthesizer> synthesizers = new HashSet<Synthesizer>();
+    private static final StandardMidiFileReader standardMidiFileReader = new StandardMidiFileReader();
+    private static final StandardMidiFileWriter standardMidiFileWriter = new StandardMidiFileWriter();
 
     /**
      * Add a {@link jp.kshoji.javax.sound.midi.MidiDevice} to the {@link jp.kshoji.javax.sound.midi.MidiSystem}
@@ -62,9 +65,9 @@ public final class MidiSystem {
 		 */
         @NonNull
         public static List<Receiver> getReceivers() throws MidiUnavailableException {
-			List<Receiver> result = new ArrayList<Receiver>();
-			Info[] midiDeviceInfos = MidiSystem.getMidiDeviceInfo();
-			for (Info midiDeviceInfo : midiDeviceInfos) {
+			final List<Receiver> result = new ArrayList<Receiver>();
+			final Info[] midiDeviceInfos = MidiSystem.getMidiDeviceInfo();
+			for (final Info midiDeviceInfo : midiDeviceInfos) {
 				result.addAll(MidiSystem.getMidiDevice(midiDeviceInfo).getReceivers());
 			}
 
@@ -79,9 +82,9 @@ public final class MidiSystem {
 		 */
         @NonNull
         public static List<Transmitter> getTransmitters() throws MidiUnavailableException {
-			List<Transmitter> result = new ArrayList<Transmitter>();
-			Info[] midiDeviceInfos = MidiSystem.getMidiDeviceInfo();
-			for (Info midiDeviceInfo : midiDeviceInfos) {
+			final List<Transmitter> result = new ArrayList<Transmitter>();
+			final Info[] midiDeviceInfos = MidiSystem.getMidiDeviceInfo();
+			for (final Info midiDeviceInfo : midiDeviceInfos) {
 				result.addAll(MidiSystem.getMidiDevice(midiDeviceInfo).getTransmitters());
 			}
 
@@ -102,9 +105,9 @@ public final class MidiSystem {
 	 */
     @NonNull
     public static MidiDevice.Info[] getMidiDeviceInfo() {
-		List<MidiDevice.Info> result = new ArrayList<MidiDevice.Info>();
+		final List<MidiDevice.Info> result = new ArrayList<MidiDevice.Info>();
 		synchronized (midiDevices) {
-            for (MidiDevice device : midiDevices) {
+            for (final MidiDevice device : midiDevices) {
                 result.add(device.getDeviceInfo());
             }
 		}
@@ -183,8 +186,7 @@ public final class MidiSystem {
 	 * @throws IOException
 	 */
     @NonNull
-    public static Sequence getSequence(@NonNull File file) throws InvalidMidiDataException, IOException {
-		StandardMidiFileReader standardMidiFileReader = new StandardMidiFileReader();
+    public static Sequence getSequence(@NonNull final File file) throws InvalidMidiDataException, IOException {
 		return standardMidiFileReader.getSequence(file);
 	}
 
@@ -197,8 +199,7 @@ public final class MidiSystem {
 	 * @throws IOException
 	 */
     @NonNull
-    public static Sequence getSequence(@NonNull InputStream stream) throws InvalidMidiDataException, IOException {
-		StandardMidiFileReader standardMidiFileReader = new StandardMidiFileReader();
+    public static Sequence getSequence(@NonNull final InputStream stream) throws InvalidMidiDataException, IOException {
 		return standardMidiFileReader.getSequence(stream);
 	}
 
@@ -211,8 +212,7 @@ public final class MidiSystem {
 	 * @throws IOException
 	 */
     @NonNull
-    public static Sequence getSequence(@NonNull URL url) throws InvalidMidiDataException, IOException {
-		StandardMidiFileReader standardMidiFileReader = new StandardMidiFileReader();
+    public static Sequence getSequence(@NonNull final URL url) throws InvalidMidiDataException, IOException {
 		return standardMidiFileReader.getSequence(url);
 	}
 
@@ -235,7 +235,7 @@ public final class MidiSystem {
 	 * @throws MidiUnavailableException
 	 */
     @NonNull
-    public static Sequencer getSequencer(boolean connected) throws MidiUnavailableException {
+    public static Sequencer getSequencer(final boolean connected) throws MidiUnavailableException {
 		return new SequencerImpl();
 	}
 
@@ -249,7 +249,7 @@ public final class MidiSystem {
      * @throws IOException
      */
     @NonNull
-    public static Soundbank getSoundbank(@NonNull File file) throws InvalidMidiDataException, IOException {
+    public static Soundbank getSoundbank(@NonNull final File file) throws InvalidMidiDataException, IOException {
         throw new UnsupportedOperationException("not implemented.");
     }
 
@@ -263,7 +263,7 @@ public final class MidiSystem {
      * @throws IOException
      */
     @NonNull
-    public static Soundbank getSoundbank(@NonNull InputStream stream) throws InvalidMidiDataException, IOException {
+    public static Soundbank getSoundbank(@NonNull final InputStream stream) throws InvalidMidiDataException, IOException {
         throw new UnsupportedOperationException("not implemented.");
     }
 
@@ -277,11 +277,9 @@ public final class MidiSystem {
      * @throws IOException
      */
     @NonNull
-    public static Soundbank getSoundbank(@NonNull URL url) throws InvalidMidiDataException, IOException {
+    public static Soundbank getSoundbank(@NonNull final URL url) throws InvalidMidiDataException, IOException {
         throw new UnsupportedOperationException("not implemented.");
     }
-
-    private static final Set<Synthesizer> synthesizers = new HashSet<Synthesizer>();
 
     /**
      * Obtain {@link jp.kshoji.javax.sound.midi.Synthesizer} registered by {@link #registerSynthesizer(Synthesizer)}
@@ -293,9 +291,9 @@ public final class MidiSystem {
     public static Synthesizer getSynthesizer() throws MidiUnavailableException {
         synchronized (synthesizers) {
             for (final Synthesizer synthesizer : synthesizers) {
-            // returns the first one
-            return synthesizer;
-        }
+                // returns the first one
+                return synthesizer;
+            }
         }
 
         throw new MidiUnavailableException("Synthesizer not found");
@@ -306,8 +304,10 @@ public final class MidiSystem {
      *
      * @param synthesizer the {@link jp.kshoji.javax.sound.midi.Synthesizer} instance
      */
-    public static void registerSynthesizer(@NonNull Synthesizer synthesizer) {
-        synthesizers.add(synthesizer);
+    public static void registerSynthesizer(@NonNull final Synthesizer synthesizer) {
+        synchronized (synthesizers) {
+            synthesizers.add(synthesizer);
+        }
     }
 
 	/**
@@ -319,8 +319,7 @@ public final class MidiSystem {
 	 * @throws IOException
 	 */
     @NonNull
-    public static MidiFileFormat getMidiFileFormat(@NonNull File file) throws InvalidMidiDataException, IOException {
-		StandardMidiFileReader standardMidiFileReader = new StandardMidiFileReader();
+    public static MidiFileFormat getMidiFileFormat(@NonNull final File file) throws InvalidMidiDataException, IOException {
 		return standardMidiFileReader.getMidiFileFormat(file);
 	}
 
@@ -333,8 +332,7 @@ public final class MidiSystem {
 	 * @throws IOException
 	 */
     @NonNull
-    public static MidiFileFormat getMidiFileFormat(@NonNull InputStream stream) throws InvalidMidiDataException, IOException {
-		StandardMidiFileReader standardMidiFileReader = new StandardMidiFileReader();
+    public static MidiFileFormat getMidiFileFormat(@NonNull final InputStream stream) throws InvalidMidiDataException, IOException {
 		return standardMidiFileReader.getMidiFileFormat(stream);
 	}
 
@@ -347,8 +345,7 @@ public final class MidiSystem {
 	 * @throws IOException
 	 */
     @NonNull
-    public static MidiFileFormat getMidiFileFormat(@NonNull URL url) throws InvalidMidiDataException, IOException {
-		StandardMidiFileReader standardMidiFileReader = new StandardMidiFileReader();
+    public static MidiFileFormat getMidiFileFormat(@NonNull final URL url) throws InvalidMidiDataException, IOException {
 		return standardMidiFileReader.getMidiFileFormat(url);
 	}
 
@@ -359,7 +356,6 @@ public final class MidiSystem {
 	 */
     @NonNull
     public static int[] getMidiFileTypes() {
-		StandardMidiFileWriter standardMidiFileWriter = new StandardMidiFileWriter();
 		return standardMidiFileWriter.getMidiFileTypes();
 	}
 
@@ -370,8 +366,7 @@ public final class MidiSystem {
 	 * @return the set of SMF types
 	 */
     @NonNull
-    public static int[] getMidiFileTypes(@NonNull Sequence sequence) {
-		StandardMidiFileWriter standardMidiFileWriter = new StandardMidiFileWriter();
+    public static int[] getMidiFileTypes(@NonNull final Sequence sequence) {
 		return standardMidiFileWriter.getMidiFileTypes(sequence);
 	}
 	
@@ -381,8 +376,7 @@ public final class MidiSystem {
 	 * @param fileType the fileType of SMF
 	 * @return true if the fileType is available
 	 */
-	public static boolean isFileTypeSupported(int fileType) {
-		StandardMidiFileWriter standardMidiFileWriter = new StandardMidiFileWriter();
+	public static boolean isFileTypeSupported(final int fileType) {
 		return standardMidiFileWriter.isFileTypeSupported(fileType);
 	}
 
@@ -393,8 +387,7 @@ public final class MidiSystem {
 	 * @param sequence the {@link Sequence}
      * @return true if the fileType is available
 	 */
-	public static boolean isFileTypeSupported(int fileType, @NonNull Sequence sequence) {
-		StandardMidiFileWriter standardMidiFileWriter = new StandardMidiFileWriter();
+	public static boolean isFileTypeSupported(final int fileType, @NonNull final Sequence sequence) {
 		return standardMidiFileWriter.isFileTypeSupported(fileType, sequence);
 	}
 
@@ -407,8 +400,7 @@ public final class MidiSystem {
 	 * @return the file length
 	 * @throws IOException
 	 */
-    public static int write(@NonNull Sequence sequence, int fileType, @NonNull File file) throws IOException {
-		StandardMidiFileWriter standardMidiFileWriter = new StandardMidiFileWriter();
+    public static int write(@NonNull final Sequence sequence, final int fileType, @NonNull final File file) throws IOException {
 		return standardMidiFileWriter.write(sequence, fileType, file);
 	}
 
@@ -421,8 +413,7 @@ public final class MidiSystem {
      * @return the file length
 	 * @throws IOException
 	 */
-    public static int write(@NonNull Sequence sequence, int fileType, @NonNull OutputStream outputStream) throws IOException {
-		StandardMidiFileWriter standardMidiFileWriter = new StandardMidiFileWriter();
+    public static int write(@NonNull final Sequence sequence, final int fileType, @NonNull final OutputStream outputStream) throws IOException {
 		return standardMidiFileWriter.write(sequence, fileType, outputStream);
 	}
 }

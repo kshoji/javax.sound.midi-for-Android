@@ -27,14 +27,14 @@ public class StandardMidiFileWriter extends MidiFileWriter {
      *
      * @author K.Shoji
      */
-    static class MidiDataOutputStream extends DataOutputStream {
+    private static class MidiDataOutputStream extends DataOutputStream {
 
         /**
          * Constructor
          *
          * @param outputStream the source stream
          */
-		public MidiDataOutputStream(@NonNull OutputStream outputStream) {
+		public MidiDataOutputStream(@NonNull final OutputStream outputStream) {
 			super(outputStream);
 		}
 
@@ -44,7 +44,7 @@ public class StandardMidiFileWriter extends MidiFileWriter {
          * @param value the original value
          * @return the raw data to write
          */
-		private static int getValueToWrite(int value) {
+		private static int getValueToWrite(final int value) {
 			int result = value & 0x7f;
 			int currentValue = value;
 
@@ -61,13 +61,13 @@ public class StandardMidiFileWriter extends MidiFileWriter {
          * @param value the value
          * @return the data length
          */
-		public static int variableLengthIntLength(int value) {
+		private static int variableLengthIntLength(final int value) {
 			int valueToWrite = getValueToWrite(value);
 
 			int length = 0;
 			while (true) {
 				length++;
-				
+
 				if ((valueToWrite & 0x80) != 0) {
 					valueToWrite >>>= 8;
 				} else {
@@ -84,7 +84,7 @@ public class StandardMidiFileWriter extends MidiFileWriter {
          * @param value the value
          * @throws IOException
          */
-		public synchronized void writeVariableLengthInt(int value) throws IOException {
+		private void writeVariableLengthInt(final int value) throws IOException {
 			int valueToWrite = getValueToWrite(value);
 
 			while (true) {
@@ -98,7 +98,7 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 			}
 		}
 	}
-	
+
 	@NonNull
     @Override
 	public int[] getMidiFileTypes() {
@@ -107,7 +107,7 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 
 	@NonNull
     @Override
-	public int[] getMidiFileTypes(@NonNull Sequence sequence) {
+	public int[] getMidiFileTypes(@NonNull final Sequence sequence) {
 		if (sequence.getTracks().length > 1) {
 			return new int[] { 1 };
 		} else {
@@ -116,46 +116,46 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 	}
 
 	@Override
-	public int write(@NonNull Sequence sequence, int fileType, @NonNull File file) throws IOException {
-		FileOutputStream fileOutputStream = new FileOutputStream(file);
-		int written = write(sequence, fileType, fileOutputStream);
+	public int write(@NonNull final Sequence sequence, final int fileType, @NonNull final File file) throws IOException {
+		final FileOutputStream fileOutputStream = new FileOutputStream(file);
+		final int written = write(sequence, fileType, fileOutputStream);
 		fileOutputStream.close();
 		return written;
 	}
 
 	@Override
-	public int write(@NonNull Sequence sequence, int fileType, @NonNull OutputStream outputStream) throws IOException {
-		MidiDataOutputStream midiDataOutputStream = new MidiDataOutputStream(outputStream);
+	public int write(@NonNull final Sequence sequence, final int fileType, @NonNull final OutputStream outputStream) throws IOException {
+		final MidiDataOutputStream midiDataOutputStream = new MidiDataOutputStream(outputStream);
 
-		Track[] tracks = sequence.getTracks();
+		final Track[] tracks = sequence.getTracks();
 		midiDataOutputStream.writeInt(MidiFileFormat.HEADER_MThd);
 		midiDataOutputStream.writeInt(6);
 		midiDataOutputStream.writeShort(fileType);
 		midiDataOutputStream.writeShort(tracks.length);
 		
-		float divisionType = sequence.getDivisionType();
-		int resolution = sequence.getResolution();
+		final float divisionType = sequence.getDivisionType();
+		final int resolution = sequence.getResolution();
 		int division = 0;
 		if (divisionType == Sequence.PPQ) {
 			division = resolution & 0x7fff;
 		} else if (divisionType == Sequence.SMPTE_24) {
 			division = (24 << 8) * -1;
-			division += (resolution & 0xff);
+			division += resolution & 0xff;
 		} else if (divisionType == Sequence.SMPTE_25) {
 			division = (25 << 8) * -1;
-			division += (resolution & 0xff);
+			division += resolution & 0xff;
 		} else if (divisionType == Sequence.SMPTE_30DROP) {
 			division = (29 << 8) * -1;
-			division += (resolution & 0xff);
+			division += resolution & 0xff;
 		} else if (divisionType == Sequence.SMPTE_30) {
 			division = (30 << 8) * -1;
-			division += (resolution & 0xff);
+			division += resolution & 0xff;
 		}
 		midiDataOutputStream.writeShort(division);
 		
 		int length = 0;
-		for (int i = 0; i < tracks.length; i++) {
-			length += writeTrack(tracks[i], midiDataOutputStream);
+		for (final Track track : tracks) {
+			length += writeTrack(track, midiDataOutputStream);
 		}
 		
 		midiDataOutputStream.close();
@@ -170,20 +170,19 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 	 * @return written byte length
 	 * @throws IOException
 	 */
-	private static int writeTrack(@NonNull Track track, @NonNull MidiDataOutputStream midiDataOutputStream) throws IOException {
-		int eventCount = track.size();
-        int trackLength = 0;
-        long lastTick = 0;
-        boolean hasEndOfTrack = false;
-        MidiEvent midiEvent = null;
+	private static int writeTrack(@NonNull final Track track, @NonNull final MidiDataOutputStream midiDataOutputStream) throws IOException {
+		final int eventCount = track.size();
 
-        // track header
+		// track header
         midiDataOutputStream.writeInt(MidiFileFormat.HEADER_MTrk);
 
 		// calculate the track length
+		int trackLength = 0;
+		long lastTick = 0;
+		MidiEvent midiEvent = null;
 		for (int i = 0; i < eventCount; i++) {
             midiEvent = track.get(i);
-			long tick = midiEvent.getTick();
+			final long tick = midiEvent.getTick();
 			trackLength += MidiDataOutputStream.variableLengthIntLength((int) (tick - lastTick));
 			lastTick = tick;
 
@@ -191,9 +190,10 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 		}
 
         // process End of Track message
-        if (midiEvent != null && (midiEvent.getMessage() instanceof MetaMessage) && //
+		boolean needEndOfTrack = true;
+		if (midiEvent != null && (midiEvent.getMessage() instanceof MetaMessage) && //
             ((MetaMessage)midiEvent.getMessage()).getType() == MetaMessage.TYPE_END_OF_TRACK) {
-            hasEndOfTrack = true;
+            needEndOfTrack = false;
         } else {
             trackLength += 4; // End of Track
         }
@@ -203,7 +203,7 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 		lastTick = 0;
 		for (int i = 0; i < eventCount; i++) {
             midiEvent = track.get(i);
-            long tick = midiEvent.getTick();
+            final long tick = midiEvent.getTick();
 			midiDataOutputStream.writeVariableLengthInt((int) (tick - lastTick));
 			lastTick = tick;
 			
@@ -211,7 +211,7 @@ public class StandardMidiFileWriter extends MidiFileWriter {
         }
 
         // write End of Track message if not found.
-        if (!hasEndOfTrack) {
+        if (needEndOfTrack) {
             midiDataOutputStream.writeVariableLengthInt(0);
             midiDataOutputStream.writeByte(MetaMessage.META);
             midiDataOutputStream.writeByte(MetaMessage.TYPE_END_OF_TRACK);

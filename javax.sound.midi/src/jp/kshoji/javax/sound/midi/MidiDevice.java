@@ -1,7 +1,6 @@
 package jp.kshoji.javax.sound.midi;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import java.util.List;
 
@@ -65,7 +64,7 @@ public interface MidiDevice {
 	 * @return the default {@link Receiver}.
 	 * @throws MidiUnavailableException
 	 */
-	@Nullable
+	@NonNull
     Receiver getReceiver() throws MidiUnavailableException;
 
 	/**
@@ -82,7 +81,7 @@ public interface MidiDevice {
 	 * @return the default {@link Transmitter}.
 	 * @throws MidiUnavailableException
 	 */
-    @Nullable
+    @NonNull
     Transmitter getTransmitter() throws MidiUnavailableException;
 
 	/**
@@ -98,11 +97,11 @@ public interface MidiDevice {
 	 *
 	 * @author K.Shoji
 	 */
-	public static class Info {
-		private String name;
-		private String vendor;
-		private String description;
-		private String version;
+	class Info {
+		private final String name;
+		private final String vendor;
+		private final String description;
+		private final String version;
 
         /**
          * Constructor
@@ -112,7 +111,7 @@ public interface MidiDevice {
          * @param description the description string
          * @param version the version string
          */
-		public Info(@NonNull String name, @NonNull String vendor, @NonNull String description, @NonNull String version) {
+		public Info(@NonNull final String name, @NonNull final String vendor, @NonNull final String description, @NonNull final String version) {
 			this.name = name;
 			this.vendor = vendor;
 			this.description = description;
@@ -169,15 +168,15 @@ public interface MidiDevice {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((description == null) ? 0 : description.hashCode());
-			result = prime * result + ((name == null) ? 0 : name.hashCode());
-			result = prime * result + ((vendor == null) ? 0 : vendor.hashCode());
-			result = prime * result + ((version == null) ? 0 : version.hashCode());
+			result = prime * result + description.hashCode();
+			result = prime * result + name.hashCode();
+			result = prime * result + vendor.hashCode();
+			result = prime * result + version.hashCode();
 			return result;
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(final Object obj) {
 			if (this == obj) {
 				return true;
 			}
@@ -188,32 +187,16 @@ public interface MidiDevice {
 				return false;
 			}
 			final Info other = (Info) obj;
-			if (description == null) {
-				if (other.description != null) {
-					return false;
-				}
-			} else if (!description.equals(other.description)) {
+			if (!description.equals(other.description)) {
 				return false;
 			}
-			if (name == null) {
-				if (other.name != null) {
-					return false;
-				}
-			} else if (!name.equals(other.name)) {
+			if (!name.equals(other.name)) {
 				return false;
 			}
-			if (vendor == null) {
-				if (other.vendor != null) {
-					return false;
-				}
-			} else if (!vendor.equals(other.vendor)) {
+			if (!vendor.equals(other.vendor)) {
 				return false;
 			}
-			if (version == null) {
-				if (other.version != null) {
-					return false;
-				}
-			} else if (!version.equals(other.version)) {
+			if (!version.equals(other.version)) {
 				return false;
 			}
 			return true;

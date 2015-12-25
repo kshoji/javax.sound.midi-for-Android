@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -16,9 +17,10 @@ import java.util.Set;
  * @author K.Shoji
  */
 public class Track {
-	static final byte[] END_OF_TRACK = new byte[] { -1, 47, 0 };
+    private static final byte[] END_OF_TRACK = { -1, 47, 0 };
+    private static final Track[] emptyTracks = {};
 
-	final List<MidiEvent> events = new ArrayList<MidiEvent>();
+    private final List<MidiEvent> events = new ArrayList<MidiEvent>();
 
 	/**
 	 * {@link Comparator} for MIDI data sorting
@@ -27,7 +29,7 @@ public class Track {
 		@Override
 		public int compare(MidiEvent lhs, MidiEvent rhs) {
 			// sort by tick
-			int tickDifference = (int) (lhs.getTick() - rhs.getTick());
+			final int tickDifference = (int) (lhs.getTick() - rhs.getTick());
 			if (tickDifference != 0) {
 				return tickDifference * 256;
 			}
@@ -47,8 +49,8 @@ public class Track {
 			// sort by the MIDI data priority order, as:
 			// system message > control messages > note on > note off
 			// swap the priority of note on, and note off
-			int lhsInt = (lhsMessage[0] & 0xf0);
-			int rhsInt = (rhsMessage[0] & 0xf0);
+			int lhsInt = lhsMessage[0] & 0xf0;
+			int rhsInt = rhsMessage[0] & 0xf0;
 
 			if ((lhsInt & 0x90) == 0x80) {
 				lhsInt |= 0x10;
@@ -80,14 +82,14 @@ public class Track {
 		 * @throws InvalidMidiDataException
 		 */
         @NonNull
-        public static Track mergeSequenceToTrack(@NonNull Sequencer sequencer, @NonNull Map<Track, Set<Integer>> recordEnable) throws InvalidMidiDataException {
-			Sequence sourceSequence = sequencer.getSequence();
-			Track mergedTrack = new Track();
+        public static Track mergeSequenceToTrack(@NonNull final Sequencer sequencer, @NonNull final Map<Track, Set<Integer>> recordEnable) throws InvalidMidiDataException {
+			final Sequence sourceSequence = sequencer.getSequence();
+			final Track mergedTrack = new Track();
 
 			// apply track mute and solo
-			Track[] tracks;
+			final Track[] tracks;
             if (sourceSequence == null) {
-                tracks = new Track[] {};
+                tracks = emptyTracks;
             } else {
                 tracks = sourceSequence.getTracks();
             }
@@ -127,11 +129,11 @@ public class Track {
 		 * 
 		 * @param track the Track
 		 */
-		public static void sortEvents(@NonNull Track track) {
+		public static void sortEvents(@NonNull final Track track) {
 			synchronized (track.events) {
 				// remove all of END_OF_TRACK
-				List<MidiEvent> filtered = new ArrayList<MidiEvent>();
-				for (MidiEvent event : track.events) {
+				final Collection<MidiEvent> filtered = new ArrayList<MidiEvent>();
+				for (final MidiEvent event : track.events) {
 					if (!Arrays.equals(END_OF_TRACK, event.getMessage().getMessage())) {
 						filtered.add(event);
 					}
@@ -143,7 +145,7 @@ public class Track {
 				Collections.sort(track.events, midiEventComparator);
 				
 				// add END_OF_TRACK to last
-				if (track.events.size() == 0) {
+				if (track.events.isEmpty()) {
 					track.events.add(new MidiEvent(new MetaMessage(END_OF_TRACK), 0));
 				} else {
 					track.events.add(new MidiEvent(new MetaMessage(END_OF_TRACK), track.events.get(track.events.size() - 1).getTick() + 1));
@@ -158,7 +160,7 @@ public class Track {
 	 * @param event to add
 	 * @return true if the event has been added
 	 */
-	public boolean add(@NonNull MidiEvent event) {
+	public boolean add(@NonNull final MidiEvent event) {
 		synchronized (events) {
 			return events.add(event);
 		}
@@ -172,7 +174,7 @@ public class Track {
 	 * @throws ArrayIndexOutOfBoundsException
 	 */
     @NonNull
-    public MidiEvent get(int index) throws ArrayIndexOutOfBoundsException {
+    public MidiEvent get(final int index) throws ArrayIndexOutOfBoundsException {
 		synchronized (events) {
 			return events.get(index);
 		}
@@ -184,7 +186,7 @@ public class Track {
 	 * @param event to remove
 	 * @return true if the event has been removed
 	 */
-	public boolean remove(@NonNull MidiEvent event) {
+	public boolean remove(@NonNull final MidiEvent event) {
 		synchronized (events) {
 			return events.remove(event);
 		}
@@ -210,7 +212,7 @@ public class Track {
 		TrackUtils.sortEvents(this);
 
 		synchronized (events) {
-			if (events.size() == 0) {
+			if (events.isEmpty()) {
 				return 0L;
 			}
 
