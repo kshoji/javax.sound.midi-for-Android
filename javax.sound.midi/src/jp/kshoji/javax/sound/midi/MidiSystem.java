@@ -120,9 +120,13 @@ public final class MidiSystem {
 	 * @throws IllegalArgumentException if the device not found.
 	 */
     @NonNull
-    public static MidiDevice getMidiDevice(@NonNull MidiDevice.Info info) throws MidiUnavailableException, IllegalArgumentException {
+    public static MidiDevice getMidiDevice(@NonNull final MidiDevice.Info info) throws MidiUnavailableException, IllegalArgumentException {
+        if (midiDevices.isEmpty()) {
+            throw new MidiUnavailableException("MidiDevice not found");
+        }
+
         synchronized (midiDevices) {
-            for (MidiDevice midiDevice : midiDevices) {
+            for (final MidiDevice midiDevice : midiDevices) {
                 if (info.equals(midiDevice.getDeviceInfo())) {
                     return midiDevice;
                 }
@@ -141,14 +145,14 @@ public final class MidiSystem {
     @Nullable
     public static Receiver getReceiver() throws MidiUnavailableException {
         synchronized (midiDevices) {
-            for (MidiDevice midiDevice : midiDevices) {
-                Receiver receiver = midiDevice.getReceiver();
+            for (final MidiDevice midiDevice : midiDevices) {
+                final Receiver receiver = midiDevice.getReceiver();
                 if (receiver != null) {
                     return receiver;
                 }
             }
 		}
-		return null;
+		throw new MidiUnavailableException("Receiver not found");
 	}
 
 	/**
@@ -160,14 +164,14 @@ public final class MidiSystem {
     @Nullable
     public static Transmitter getTransmitter() throws MidiUnavailableException {
         synchronized (midiDevices) {
-            for (MidiDevice midiDevice : midiDevices) {
-                Transmitter transmitter = midiDevice.getTransmitter();
+            for (final MidiDevice midiDevice : midiDevices) {
+                final Transmitter transmitter = midiDevice.getTransmitter();
                 if (transmitter != null) {
                     return transmitter;
                 }
             }
 		}
-		return null;
+        throw new MidiUnavailableException("Transmitter not found");
 	}
 
 	/**
@@ -287,16 +291,14 @@ public final class MidiSystem {
      */
     @Nullable
     public static Synthesizer getSynthesizer() throws MidiUnavailableException {
-        if (synthesizers.size() == 0) {
-            return null;
-        }
-
-        for (Synthesizer synthesizer : synthesizers) {
+        synchronized (synthesizers) {
+            for (final Synthesizer synthesizer : synthesizers) {
             // returns the first one
             return synthesizer;
         }
+        }
 
-        return null;
+        throw new MidiUnavailableException("Synthesizer not found");
     }
 
     /**
