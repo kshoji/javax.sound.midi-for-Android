@@ -34,7 +34,7 @@ public final class MidiSystem {
      *
      * @param midiDevice the device to add
      */
-    public static void addMidiDevice(@NonNull MidiDevice midiDevice) {
+    public static void addMidiDevice(@NonNull final MidiDevice midiDevice) {
         synchronized (midiDevices) {
             midiDevices.add(midiDevice);
         }
@@ -45,12 +45,33 @@ public final class MidiSystem {
      *
      * @param midiDevice the device to remove
      */
-    public static void removeMidiDevice(@NonNull MidiDevice midiDevice) {
+    public static void removeMidiDevice(@NonNull final MidiDevice midiDevice) {
         synchronized (midiDevices) {
             midiDevices.remove(midiDevice);
         }
     }
 
+    /**
+     * Add a {@link jp.kshoji.javax.sound.midi.Synthesizer} to the {@link jp.kshoji.javax.sound.midi.MidiSystem}
+     *
+     * @param synthesizer the device to add
+     */
+    public static void addSynthesizer(@NonNull final Synthesizer synthesizer) {
+        synchronized (synthesizers) {
+            synthesizers.add(synthesizer);
+        }
+    }
+
+    /**
+     * Remove a {@link jp.kshoji.javax.sound.midi.Synthesizer} from the {@link jp.kshoji.javax.sound.midi.MidiSystem}
+     *
+     * @param synthesizer the device to remove
+     */
+    public static void removeSynthesizer(@NonNull final Synthesizer synthesizer) {
+        synchronized (synthesizers) {
+            synthesizers.remove(synthesizer);
+        }
+    }
     /**
 	 * Utilities for {@link MidiSystem}
 	 *
@@ -108,7 +129,10 @@ public final class MidiSystem {
 		final List<MidiDevice.Info> result = new ArrayList<MidiDevice.Info>();
 		synchronized (midiDevices) {
             for (final MidiDevice device : midiDevices) {
-                result.add(device.getDeviceInfo());
+                final Info deviceInfo = device.getDeviceInfo();
+                if (deviceInfo != null) {
+                    result.add(deviceInfo);
+                }
             }
 		}
 		return result.toArray(new MidiDevice.Info[result.size()]);
