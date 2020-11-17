@@ -10,6 +10,8 @@ android:
   licenses:
     - '.+'
 before_install:
+ - yes | sdkmanager "build-tools;29.0.3"
+ - yes | sdkmanager "platforms;android-29"
  - chmod +x gradlew
  - rm "${JAVA_HOME}/lib/security/cacerts"
  - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
