@@ -1,13 +1,17 @@
 language: android
-jdk: openjdk7
+dist: trusty
+jdk: openjdk8
 android:
   components:
-    - build-tools-21.1.2
+    - build-tools-29.0.3
     - extra-android-m2repository
+    - extra-google-m2repository
     - android-12
   licenses:
     - '.+'
 before_install:
+ - yes | sdkmanager "build-tools;29.0.3"
+ - yes | sdkmanager "platforms;android-29"
  - chmod +x gradlew
 script:
   - ./gradlew check
