@@ -1,0 +1,47 @@
+plugins {
+    id 'com.android.application'
+}
+
+repositories {
+    maven { url 'https://github.com/kshoji/javax.sound.midi-for-Android/raw/develop/javax.sound.midi/repository' }
+    maven { url 'https://github.com/kshoji/BLE-MIDI-for-Android/raw/feature/midi2.0/library/repository' }
+    maven { url 'https://github.com/kshoji/USB-MIDI-Driver/raw/feature/midi2.0/MIDIDriver/snapshots' }
+    mavenCentral()
+}
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion "30.0.3"
+
+    defaultConfig {
+        applicationId "jp.kshoji.javax.sound.midi.sample"
+        minSdkVersion 18
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation project(':javax.sound.midi')
+    implementation ('jp.kshoji:ble-midi:0.0.10-SNAPSHOT') {
+        exclude group: 'jp.kshoji', module: 'javax-sound-midi'
+    }
+    implementation ('jp.kshoji:midi-driver:0.1.5-SNAPSHOT') {
+        exclude group: 'jp.kshoji', module: 'javax-sound-midi'
+    }
+
+    //noinspection GradleCompatible
+    implementation 'com.android.support:appcompat-v7:22.0.0'
+}
