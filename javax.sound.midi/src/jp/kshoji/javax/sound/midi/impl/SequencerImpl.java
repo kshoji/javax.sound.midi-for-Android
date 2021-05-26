@@ -184,7 +184,6 @@ public class SequencerImpl implements Sequencer {
                 return;
             }
 
-            tickPosition = getLoopStartPoint();
             tickPositionSetTime = System.currentTimeMillis();
             isRunning = true;
 
@@ -305,7 +304,8 @@ public class SequencerImpl implements Sequencer {
                 }
 
                 // process looping
-                for (int loop = 0; loop < getLoopCount() + 1; loop = (getLoopCount() == LOOP_CONTINUOUSLY ? loop : loop + 1)) {
+                final int loopCount = getLoopCount() == LOOP_CONTINUOUSLY ? 1 : getLoopCount() + 1;
+                for (int loop = 0; loop < loopCount; loop += getLoopCount() == LOOP_CONTINUOUSLY ? 0 : 1) {
                     if (needRefreshPlayingTrack) {
                         refreshPlayingTrack();
                     }
@@ -860,6 +860,9 @@ public class SequencerImpl implements Sequencer {
     public long getTickPosition() {
         if (sequencerThread == null) {
             return 0;
+        }
+        if (!isRunning) {
+            return sequencerThread.tickPosition;
         }
         return sequencerThread.getTickPosition();
     }
