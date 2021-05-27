@@ -3,9 +3,8 @@ plugins {
 }
 
 repositories {
-    maven { url 'https://github.com/kshoji/javax.sound.midi-for-Android/raw/develop/javax.sound.midi/repository' }
-    maven { url 'https://github.com/kshoji/BLE-MIDI-for-Android/raw/feature/midi2.0/library/repository' }
-    maven { url 'https://github.com/kshoji/USB-MIDI-Driver/raw/feature/midi2.0/MIDIDriver/snapshots' }
+    maven { url 'https://github.com/kshoji/BLE-MIDI-for-Android/raw/develop/library/repository' }
+    maven { url 'https://github.com/kshoji/USB-MIDI-Driver/raw/develop/MIDIDriver/snapshots' }
     mavenCentral()
 }
 
