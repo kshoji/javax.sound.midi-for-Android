@@ -43,7 +43,7 @@ group = 'jp.kshoji'
 uploadArchives {
     repositories.mavenDeployer {
         repository url: 'file://' + file('repository').absolutePath
-        pom.version = '0.0.4-SNAPSHOT'
+        pom.version = '0.0.4'
         pom.artifactId = 'javax-sound-midi'
     }
 }
