@@ -3,6 +3,7 @@ package jp.kshoji.javax.sound.midi;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +24,7 @@ public class MidiFileFormat {
 	protected long microsecondLength;
 	protected int resolution;
 	protected int type;
-	private HashMap<String, Object> properties;
+	private final AbstractMap<String, Object> properties;
 
     /**
      * Constructor without properties
@@ -38,7 +39,7 @@ public class MidiFileFormat {
      * @param bytes the length of file
      * @param microseconds the length of time(in micro seconds)
      */
-	public MidiFileFormat(int type, float divisionType, int resolution, int bytes, long microseconds) {
+	public MidiFileFormat(final int type, final float divisionType, final int resolution, final int bytes, final long microseconds) {
 		this.type = type;
 		this.divisionType = divisionType;
 		this.resolution = resolution;
@@ -61,7 +62,7 @@ public class MidiFileFormat {
      * @param microseconds the length of time(in micro seconds)
      * @param properties the properties
      */
-	public MidiFileFormat(int type, float divisionType, int resolution, int bytes, long microseconds, @NonNull Map<String, Object> properties) {
+	public MidiFileFormat(final int type, final float divisionType, final int resolution, final int bytes, final long microseconds, @NonNull final Map<String, Object> properties) {
         this(type, divisionType, resolution, bytes, microseconds);
 		this.properties.putAll(properties);
 	}
@@ -100,7 +101,7 @@ public class MidiFileFormat {
 	 * @return the property
 	 */
     @Nullable
-    public Object getProperty(String key) {
+    public Object getProperty(final String key) {
 		return properties.get(key);
 	}
 

@@ -15,7 +15,7 @@ public class Patch {
      * @param bank the bank of {@link jp.kshoji.javax.sound.midi.Patch}
      * @param program the program of {@link jp.kshoji.javax.sound.midi.Patch}
      */
-    public Patch(int bank, int program) {
+    public Patch(final int bank, final int program) {
         this.bank = bank;
         this.program = program;
     }

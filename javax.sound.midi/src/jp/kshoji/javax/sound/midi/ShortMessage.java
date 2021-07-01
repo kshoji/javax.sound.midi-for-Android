@@ -44,7 +44,7 @@ public class ShortMessage extends MidiMessage {
 	 * 
 	 * @param data the raw data
 	 */
-	protected ShortMessage(@NonNull byte[] data) {
+	protected ShortMessage(@NonNull final byte[] data) {
 		super(data);
 	}
 
@@ -54,7 +54,7 @@ public class ShortMessage extends MidiMessage {
      * @param status the status data
      * @throws InvalidMidiDataException
      */
-    public ShortMessage(int status) throws InvalidMidiDataException {
+    public ShortMessage(final int status) throws InvalidMidiDataException {
         super(null);
         setMessage(status);
     }
@@ -67,7 +67,7 @@ public class ShortMessage extends MidiMessage {
      * @param data2 the second data
      * @throws InvalidMidiDataException
      */
-    public ShortMessage(int status, int data1, int data2) throws InvalidMidiDataException {
+    public ShortMessage(final int status, final int data1, final int data2) throws InvalidMidiDataException {
         super(null);
         setMessage(status, data1, data2);
     }
@@ -81,7 +81,7 @@ public class ShortMessage extends MidiMessage {
      * @param data2 the second data
      * @throws InvalidMidiDataException
      */
-    public ShortMessage(int command, int channel, int data1, int data2) throws InvalidMidiDataException {
+    public ShortMessage(final int command, final int channel, final int data1, final int data2) throws InvalidMidiDataException {
         super(null);
         setMessage(command, channel, data1, data2);
     }
@@ -92,8 +92,8 @@ public class ShortMessage extends MidiMessage {
      * @param status the status data
 	 * @throws InvalidMidiDataException
 	 */
-	public void setMessage(int status) throws InvalidMidiDataException {
-		int dataLength = getDataLength(status);
+	public void setMessage(final int status) throws InvalidMidiDataException {
+		final int dataLength = getDataLength(status);
 		if (dataLength != 0) {
 			throw new InvalidMidiDataException("Status byte: " + status + " requires " + dataLength + " data bytes length");
 		}
@@ -108,8 +108,8 @@ public class ShortMessage extends MidiMessage {
      * @param data2 the second data
 	 * @throws InvalidMidiDataException
 	 */
-	public void setMessage(int status, int data1, int data2) throws InvalidMidiDataException {
-		int dataLength = getDataLength(status);
+	public void setMessage(final int status, final int data1, final int data2) throws InvalidMidiDataException {
+		final int dataLength = getDataLength(status);
 		if (dataLength > 0) {
 			if (data1 < 0 || data1 > 0x7f) {
 				throw new InvalidMidiDataException("data1 out of range: " + data1);
@@ -144,7 +144,7 @@ public class ShortMessage extends MidiMessage {
 	 * @param data2 the second data
 	 * @throws InvalidMidiDataException
 	 */
-	public void setMessage(int command, int channel, int data1, int data2) throws InvalidMidiDataException {
+	public void setMessage(final int command, final int channel, final int data1, final int data2) throws InvalidMidiDataException {
 		if (command >= 0xf0 || command < 0x80) {
 			throw new InvalidMidiDataException("command out of range: 0x" + Integer.toHexString(command));
 		}
@@ -179,7 +179,7 @@ public class ShortMessage extends MidiMessage {
 	 */
 	public int getData1() {
 		if (data.length > 1) {
-			return (data[1] & 0xff);
+			return data[1] & 0xff;
 		}
 		return 0;
 	}
@@ -191,14 +191,14 @@ public class ShortMessage extends MidiMessage {
 	 */
 	public int getData2() {
 		if (data.length > 2) {
-			return (data[2] & 0xff);
+			return data[2] & 0xff;
 		}
 		return 0;
 	}
 
 	@Override
 	public Object clone() {
-		byte[] result = new byte[data.length];
+		final byte[] result = new byte[data.length];
 		System.arraycopy(data, 0, result, 0, result.length);
 		return new ShortMessage(result);
 	}
@@ -210,7 +210,7 @@ public class ShortMessage extends MidiMessage {
      * @return length of MIDI message
      * @throws InvalidMidiDataException
      */
-	protected static int getDataLength(int status) throws InvalidMidiDataException {
+	protected static int getDataLength(final int status) throws InvalidMidiDataException {
 		switch (status) {
 			case TUNE_REQUEST:
 			case END_OF_EXCLUSIVE:

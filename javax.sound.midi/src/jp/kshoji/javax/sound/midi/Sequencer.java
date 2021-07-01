@@ -26,18 +26,18 @@ public interface Sequencer extends MidiDevice {
      * 
      * @author K.Shoji
      */
-    public static class SyncMode {
+    class SyncMode {
 		public static final SyncMode INTERNAL_CLOCK = new SyncMode("Internal Clock");
         public static final SyncMode NO_SYNC = new SyncMode("No Sync");
 
-        private String name;
+        private final String name;
 
-        protected SyncMode(@NonNull String name) {
+        protected SyncMode(@NonNull final String name) {
             this.name = name;
         }
         
         @Override
-        public final boolean equals(Object obj) {
+        public final boolean equals(final Object obj) {
             if (this == obj) {
                 return true;
             }
@@ -48,11 +48,7 @@ public interface Sequencer extends MidiDevice {
                 return false;
             }
             final SyncMode other = (SyncMode) obj;
-            if (name == null) {
-                if (other.name != null) {
-                    return false;
-                }
-            } else if (!name.equals(other.name)) {
+            if (!name.equals(other.name)) {
                 return false;
             }
             return true;
@@ -62,7 +58,7 @@ public interface Sequencer extends MidiDevice {
         public final int hashCode() {
             final int PRIME = 31;
             int result = super.hashCode();
-            result = PRIME * result + ((name == null) ? 0 : name.hashCode());
+            result = PRIME * result + name.hashCode();
             return result;
         }
 
