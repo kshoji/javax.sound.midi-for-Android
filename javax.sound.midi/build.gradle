@@ -40,10 +40,15 @@ android {
 
 apply plugin: 'maven'
 group = 'jp.kshoji'
+def pomVersion = '0.0.4'
 uploadArchives {
     repositories.mavenDeployer {
         repository url: 'file://' + file('repository').absolutePath
-        pom.version = '0.0.4'
+        pom.version = "${pomVersion}"
+        pom.artifactId = 'javax-sound-midi'
+    }
+    repositories.mavenInstaller {
+        pom.version = "${pomVersion}"
         pom.artifactId = 'javax-sound-midi'
     }
 }
