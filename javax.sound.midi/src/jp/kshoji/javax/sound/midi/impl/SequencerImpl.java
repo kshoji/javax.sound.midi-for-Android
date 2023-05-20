@@ -128,6 +128,7 @@ public class SequencerImpl implements Sequencer {
             }
 
             recordingTrack = sequence.createTrack();
+            recordEnable(recordingTrack, -1);
             recordingStartedTime = System.currentTimeMillis();
             recordStartedTick = getTickPosition();
             isRecording = true;
