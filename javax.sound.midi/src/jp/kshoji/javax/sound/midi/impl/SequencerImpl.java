@@ -66,6 +66,8 @@ public class SequencerImpl implements Sequencer {
     private volatile boolean isRunning = false;
     private volatile boolean isRecording = false;
 
+    private static HashSet<SequencerImpl> sequencers = new HashSet<>();
+
     /**
      * Thread for this Sequencer
      *
@@ -515,6 +517,9 @@ public class SequencerImpl implements Sequencer {
 
         if (sequencerThread == null) {
             sequencerThread = new SequencerThread();
+            synchronized (sequencers) {
+                sequencers.add(this);
+            }
             sequencerThread.setName("MidiSequencer_" + sequencerThread.getId());
             try {
                 sequencerThread.start();
@@ -526,6 +531,17 @@ public class SequencerImpl implements Sequencer {
         isOpen = true;
         synchronized (sequencerThread) {
             sequencerThread.notifyAll();
+        }
+    }
+
+    /**
+     * Closes all sequencers
+     */
+    public static void closeAllSequencers() {
+        synchronized (sequencers) {
+            for (SequencerImpl sequencer : sequencers) {
+                sequencer.close();
+            }
         }
     }
 
