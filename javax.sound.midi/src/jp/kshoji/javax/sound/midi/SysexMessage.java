@@ -94,8 +94,12 @@ public class SysexMessage extends MidiMessage {
 	 */
     @NonNull
     public byte[] getData() {
-		final byte[] result = new byte[data.length];
-		System.arraycopy(data, 0, result, 0, result.length);
+		if (data.length == 0) {
+			return new byte[] {};
+		}
+
+		final byte[] result = new byte[data.length - 1];
+		System.arraycopy(data, 1, result, 0, result.length);
 		return result;
 	}
 
