@@ -139,7 +139,8 @@ public class StandardMidiFileReader extends MidiFileReader {
 			final float divisionType;
 			final int resolution;
 			if ((division & 0x8000) != 0) {
-				division = -((division >>> 8) & 0xff);
+				resolution = division & 0xff;
+				division = 256 - ((division >>> 8) & 0xff);
 				switch (division) {
 				case 24:
 					divisionType = Sequence.SMPTE_24;
@@ -157,7 +158,6 @@ public class StandardMidiFileReader extends MidiFileReader {
 				default:
 					throw new InvalidMidiDataException("Invalid sequence information");
 				}
-				resolution = division & 0xff;
 			} else {
 				divisionType = Sequence.PPQ;
 				resolution = division & 0x7fff;
@@ -240,6 +240,9 @@ public class StandardMidiFileReader extends MidiFileReader {
 					} else if (data == ShortMessage.START_OF_EXCLUSIVE || data == ShortMessage.END_OF_EXCLUSIVE) {
 						// System Exclusive event
 						final int sysexLength = midiDataInputStream.readVariableLengthInt();
+						if (sysexLength > midiDataInputStream.available()) {
+							throw new InvalidMidiDataException(String.format("Invalid system exclusive length: %d", sysexLength));
+						}
 						final byte[] sysexData = new byte[sysexLength];
 						midiDataInputStream.readFully(sysexData);
 						
