@@ -561,6 +561,7 @@ public class SequencerImpl implements Sequencer {
             sequencerThread.stopPlaying();
             sequencerThread.stopRecording();
             isOpen = false;
+            sequencerThread.interrupt();
             sequencerThread = null;
         }
 
