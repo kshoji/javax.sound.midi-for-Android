@@ -371,20 +371,47 @@ public class SequencerImpl implements Sequencer {
                         try {
                             final long sleepLength = (long) ((1.0f / getTicksPerMicrosecond()) * (midiEvent.getTick() - tickPosition) / 1000f / getTempoFactor());
                             if (sleepLength > 0) {
-                                sleep(sleepLength);
+                                wait(sleepLength);
                             }
-                            tickPosition = midiEvent.getTick();
-                            tickPositionSetTime = System.currentTimeMillis();
                         } catch (final InterruptedException ignored) {
                             // ignore exception
                         }
 
-                        if (isRunning == false) {
+                        tickPosition = midiEvent.getTick();
+                        tickPositionSetTime = System.currentTimeMillis();
+
+                        // pause / resume
+                        while (!isRunning && isOpen) {
+                            boolean pausing = !isRunning;
+                            try {
+                                // wait for being notified
+                                while (!isRunning && isOpen) {
+                                    wait();
+                                }
+                            } catch (final InterruptedException ignored) {
+                                // ignore exception
+                            }
+                            if (!pausing) {
+                                continue;
+                            }
+
+                            if (needRefreshPlayingTrack) {
+                                refreshPlayingTrack();
+                            }
+                            for (int index = 0; index < playingTrack.size(); index++) {
+                                if (playingTrack.get(index).getTick() >= tickPosition) {
+                                    i = index;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (!isOpen) {
                             break;
                         }
 
                         if (needRefreshPlayingTrack) {
-                            break;
+                            continue;
                         }
 
                         // process tempo change message
