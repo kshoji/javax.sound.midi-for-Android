@@ -1,0 +1,96 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "jp.kshoji",
+    "module": "javax-sound-midi",
+    "version": "0.0.5",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.6"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "com.android.support",
+          "module": "support-annotations",
+          "version": {
+            "requires": "28.0.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "javax-sound-midi-0.0.5.aar",
+          "url": "javax-sound-midi-0.0.5.aar",
+          "size": 70197,
+          "sha512": "475f55b9d9163b76605dc9f9741350c63ee6f6be2eafa66a90c3b51cae71fd730221512c76614c7cc1096e5f8cb3b8f9732036c6519c68a6381e34b0570e8491",
+          "sha256": "574ae09f4add3fdfead45cac89e8600b9a77cd61da9b1d14d4de3df5ac585f12",
+          "sha1": "443238c9441af847c2527696125064543c69fff1",
+          "md5": "59ed82f6ff2f55fafd1328e70a277676"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "com.android.support",
+          "module": "support-annotations",
+          "version": {
+            "requires": "28.0.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "javax-sound-midi-0.0.5.aar",
+          "url": "javax-sound-midi-0.0.5.aar",
+          "size": 70197,
+          "sha512": "475f55b9d9163b76605dc9f9741350c63ee6f6be2eafa66a90c3b51cae71fd730221512c76614c7cc1096e5f8cb3b8f9732036c6519c68a6381e34b0570e8491",
+          "sha256": "574ae09f4add3fdfead45cac89e8600b9a77cd61da9b1d14d4de3df5ac585f12",
+          "sha1": "443238c9441af847c2527696125064543c69fff1",
+          "md5": "59ed82f6ff2f55fafd1328e70a277676"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseSourcePublication",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "javax-sound-midi-0.0.5-sources.jar",
+          "url": "javax-sound-midi-0.0.5-sources.jar",
+          "size": 50149,
+          "sha512": "d1e3a2aa675b326d8a4469878c9f7eac554ee7f7750a1798a466803a95d40768d9cffdfdaaac6d66208b4fe97c0492d70a8dbd50f3ba5c6e321ef526fb7b5ef6",
+          "sha256": "23a1d5f5b6920789d435dc69f640b37a9b3a160275678244e64b6f1f3baab5fd",
+          "sha1": "a8d57a371c503f7f99ebdcdf82c8475757b30b13",
+          "md5": "73293ff3258d2f38b2301045d3c2b169"
+        }
+      ]
+    }
+  ]
+}
