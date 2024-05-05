@@ -139,7 +139,8 @@ public class StandardMidiFileReader extends MidiFileReader {
 			final float divisionType;
 			final int resolution;
 			if ((division & 0x8000) != 0) {
-				division = -((division >>> 8) & 0xff);
+				resolution = division & 0xff;
+				division = 256 - ((division >>> 8) & 0xff);
 				switch (division) {
 				case 24:
 					divisionType = Sequence.SMPTE_24;
@@ -157,7 +158,6 @@ public class StandardMidiFileReader extends MidiFileReader {
 				default:
 					throw new InvalidMidiDataException("Invalid sequence information");
 				}
-				resolution = division & 0xff;
 			} else {
 				divisionType = Sequence.PPQ;
 				resolution = division & 0x7fff;
@@ -222,57 +222,63 @@ public class StandardMidiFileReader extends MidiFileReader {
 					ticks += midiDataInputStream.readVariableLengthInt(); // add deltaTime
 	
 					final int data = midiDataInputStream.readUnsignedByte();
-					final MidiMessage message;
-					if (data < 0x80) {
-						// data values
-						if (runningStatus >= 0 && runningStatus < 0xf0) {
-							message = processRunningMessage(runningStatus, data, midiDataInputStream);
-						} else if (runningStatus >= 0xf0 && runningStatus <= 0xff) {
-							message = processSystemMessage(runningStatus, data, midiDataInputStream);
+					try {
+						final MidiMessage message;
+						if (data < 0x80) {
+							// data values
+							if (runningStatus >= 0 && runningStatus < 0xf0) {
+								message = processRunningMessage(runningStatus, data, midiDataInputStream);
+							} else if (runningStatus >= 0xf0 && runningStatus <= 0xff) {
+								message = processSystemMessage(runningStatus, data, midiDataInputStream);
+							} else {
+								throw new InvalidMidiDataException(String.format("Invalid data: %02x %02x", runningStatus, data));
+							}
+						} else if (data < 0xf0) {
+							// Control messages
+							message = processRunningMessage(data, midiDataInputStream.readUnsignedByte(), midiDataInputStream);
+
+							runningStatus = data;
+						} else if (data == ShortMessage.START_OF_EXCLUSIVE || data == ShortMessage.END_OF_EXCLUSIVE) {
+							// System Exclusive event
+							final int sysexLength = midiDataInputStream.readVariableLengthInt();
+							if (sysexLength > midiDataInputStream.available()) {
+								throw new InvalidMidiDataException(String.format("Invalid system exclusive length: %d", sysexLength));
+							}
+							final byte[] sysexData = new byte[sysexLength];
+							midiDataInputStream.readFully(sysexData);
+
+							final SysexMessage sysexMessage = new SysexMessage();
+							sysexMessage.setMessage(data, sysexData, sysexLength);
+							message = sysexMessage;
+
+							runningStatus = -1;
+						} else if (data == MetaMessage.META) {
+							// Meta Message
+							final int type = midiDataInputStream.readUnsignedByte();
+
+							final int metaLength = midiDataInputStream.readVariableLengthInt();
+							final byte[] metaData = new byte[metaLength];
+							midiDataInputStream.readFully(metaData);
+
+							final MetaMessage metaMessage = new MetaMessage();
+							metaMessage.setMessage(type, metaData, metaLength);
+							message = metaMessage;
+
+							runningStatus = -1;
+
+							if (type == MetaMessage.TYPE_END_OF_TRACK) {
+								isTrackRunning = false;
+							}
 						} else {
-							throw new InvalidMidiDataException(String.format("Invalid data: %02x %02x", runningStatus, data));
-						}
-					} else if (data < 0xf0) {
-						// Control messages
-						message = processRunningMessage(data, midiDataInputStream.readUnsignedByte(), midiDataInputStream);
+							// f1-f6, f8-fe
+							message = processSystemMessage(data, null, midiDataInputStream);
 
-						runningStatus = data;
-					} else if (data == ShortMessage.START_OF_EXCLUSIVE || data == ShortMessage.END_OF_EXCLUSIVE) {
-						// System Exclusive event
-						final int sysexLength = midiDataInputStream.readVariableLengthInt();
-						final byte[] sysexData = new byte[sysexLength];
-						midiDataInputStream.readFully(sysexData);
-						
-						final SysexMessage sysexMessage = new SysexMessage();
-						sysexMessage.setMessage(data, sysexData, sysexLength);
-						message = sysexMessage;
-						
-						runningStatus = -1;
-					} else if (data == MetaMessage.META) {
-						// Meta Message
-						final int type = midiDataInputStream.readUnsignedByte();
-						
-						final int metaLength = midiDataInputStream.readVariableLengthInt();
-						final byte[] metaData = new byte[metaLength];
-						midiDataInputStream.readFully(metaData);
-						
-						final MetaMessage metaMessage = new MetaMessage();
-						metaMessage.setMessage(type, metaData, metaLength);
-						message = metaMessage;
-						
-						runningStatus = -1;
-						
-						if (type == MetaMessage.TYPE_END_OF_TRACK) {
-							isTrackRunning = false;
+							runningStatus = data;
 						}
-					} else {
-						// f1-f6, f8-fe
-						message = processSystemMessage(data, null, midiDataInputStream);
-						
-						runningStatus = data;
+
+						track.add(new MidiEvent(message, ticks));
+					} catch (InvalidMidiDataException ignored) {
 					}
-
-					track.add(new MidiEvent(message, ticks));
 				}
 				
 				TrackUtils.sortEvents(track);

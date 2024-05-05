@@ -56,6 +56,7 @@ public class SequencerImpl implements Sequencer {
     private int loopCount = 0;
     private long loopStartPoint = 0;
     private long loopEndPoint = -1;
+    private boolean playIntroOnFirstLoop = false;
     private volatile float tempoFactor = 1.0f;
     private SyncMode masterSyncMode = SyncMode.INTERNAL_CLOCK;
     private SyncMode slaveSyncMode = SyncMode.NO_SYNC;
@@ -66,6 +67,8 @@ public class SequencerImpl implements Sequencer {
     private volatile boolean isRunning = false;
     private volatile boolean isRecording = false;
 
+    private static HashSet<SequencerImpl> sequencers = new HashSet<>();
+
     /**
      * Thread for this Sequencer
      *
@@ -73,6 +76,7 @@ public class SequencerImpl implements Sequencer {
      */
     private class SequencerThread extends Thread {
         private long tickPosition = 0;
+        private boolean[][] playingNotes;
 
         // recording
         private long recordingStartedTime;
@@ -126,6 +130,7 @@ public class SequencerImpl implements Sequencer {
             }
 
             recordingTrack = sequence.createTrack();
+            recordEnable(recordingTrack, -1);
             recordingStartedTime = System.currentTimeMillis();
             recordStartedTick = getTickPosition();
             isRecording = true;
@@ -145,6 +150,10 @@ public class SequencerImpl implements Sequencer {
 
             final Collection<MidiEvent> eventToRemoval = new HashSet<MidiEvent>();
             for (final Track track : sequence.getTracks()) {
+                if (track == recordingTrack) {
+                    continue;
+                }
+
                 final Set<Integer> recordEnableChannels = recordEnable.get(track);
 
                 // remove events while recorded time
@@ -163,8 +172,9 @@ public class SequencerImpl implements Sequencer {
 
                 // add recorded events
                 for (int eventIndex = 0; eventIndex < recordingTrack.size(); eventIndex++) {
-                    if (isRecordable(recordEnableChannels, recordingTrack.get(eventIndex))) {
-                        track.add(recordingTrack.get(eventIndex));
+                    MidiEvent midiEvent = recordingTrack.get(eventIndex);
+                    if (isRecordable(recordEnableChannels, midiEvent)) {
+                        track.add(midiEvent);
                     }
                 }
 
@@ -213,6 +223,37 @@ public class SequencerImpl implements Sequencer {
                 notifyAll();
             }
             interrupt();
+
+            stopAllPlayingNotes();
+        }
+
+        private void stopAllPlayingNotes()
+        {
+            ShortMessage midiMessage = new ShortMessage();
+            for (int channel = 0; channel < 16; channel++)
+            {
+                for (int note = 0; note < 128; note++)
+                {
+                    // send NoteOff event to playing notes
+                    if (playingNotes[channel][note])
+                    {
+                        try {
+                            midiMessage.setMessage(ShortMessage.NOTE_OFF | channel, note, 0);
+
+                            synchronized (receivers)
+                            {
+                                for (Receiver receiver : receivers)
+                                {
+                                    receiver.send(midiMessage, 0);
+                                }
+                            }
+
+                            playingNotes[channel][note] = false;
+                        } catch (InvalidMidiDataException ignored) {
+                        }
+                    }
+                }
+            }
         }
 
         /**
@@ -280,6 +321,11 @@ public class SequencerImpl implements Sequencer {
                 }
             }
 
+            playingNotes = new boolean[16][];
+            for (int i = 0; i < 16; i++) {
+                playingNotes[i] = new boolean[128];
+            }
+
             // playing
             while (isOpen) {
                 synchronized (this) {
@@ -304,6 +350,7 @@ public class SequencerImpl implements Sequencer {
                 }
 
                 // process looping
+                boolean isFirstLoop = true;
                 final int loopCount = getLoopCount() == LOOP_CONTINUOUSLY ? 1 : getLoopCount() + 1;
                 for (int loop = 0; loop < loopCount; loop += getLoopCount() == LOOP_CONTINUOUSLY ? 0 : 1) {
                     if (needRefreshPlayingTrack) {
@@ -359,30 +406,77 @@ public class SequencerImpl implements Sequencer {
                             }
                         }
 
-                        if (midiEvent.getTick() < getLoopStartPoint() || (getLoopEndPoint() != -1 && midiEvent.getTick() > getLoopEndPoint())) {
+                        // don't skip if GetPlayBeforeLoopOnce() && loop == 0
+                        if (((getPlayIntroOnFirstLoop() && !isFirstLoop) || !getPlayIntroOnFirstLoop()) && midiEvent.getTick() < getLoopStartPoint() ||
+                                (getLoopEndPoint() != -1 && midiEvent.getTick() > getLoopEndPoint())) {
+                            if (tickPosition <= getLoopEndPoint() && midiEvent.getTick() > getLoopEndPoint()) {
+                                // reached loop end
+                                stopAllPlayingNotes();
+                            }
+
                             // outer loop
                             tickPosition = midiEvent.getTick();
                             tickPositionSetTime = System.currentTimeMillis();
+                            isFirstLoop = false;
                             continue;
                         }
 
-                        try {
-                            final long sleepLength = (long) ((1.0f / getTicksPerMicrosecond()) * (midiEvent.getTick() - tickPosition) / 1000f / getTempoFactor());
-                            if (sleepLength > 0) {
-                                sleep(sleepLength);
+                        long eventFireTime = System.currentTimeMillis();
+                        synchronized (this) {
+                            try {
+                                long sleepLength = (long) ((1.0f / getTicksPerMicrosecond()) * (midiEvent.getTick() - tickPosition) / 1000f / getTempoFactor());
+                                sleepLength -= eventFireTime - tickPositionSetTime;
+                                eventFireTime += sleepLength;
+                                if (sleepLength > 0) {
+                                    wait(sleepLength);
+                                }
+                            } catch (final InterruptedException ignored) {
+                                // ignore exception
                             }
-                            tickPosition = midiEvent.getTick();
-                            tickPositionSetTime = System.currentTimeMillis();
-                        } catch (final InterruptedException ignored) {
-                            // ignore exception
                         }
 
-                        if (isRunning == false) {
+                        tickPosition = midiEvent.getTick();
+                        tickPositionSetTime = eventFireTime;
+
+                        // pause / resume
+                        while (!isRunning && isOpen) {
+                            boolean pausing = !isRunning;
+                            synchronized (this) {
+                                try {
+                                    // wait for being notified
+                                    while (!isRunning && isOpen) {
+                                        wait();
+                                    }
+                                } catch (final InterruptedException ignored) {
+                                    // ignore exception
+                                }
+                            }
+                            if (!pausing) {
+                                continue;
+                            }
+
+                            if (needRefreshPlayingTrack) {
+                                refreshPlayingTrack();
+                            }
+                            for (int index = 0; index < playingTrack.size(); index++) {
+                                if (playingTrack.get(index).getTick() >= tickPosition) {
+                                    i = index;
+                                    break;
+                                }
+                            }
+
+                            if (needRefreshPlayingTrack) {
+                                // `i` will increment after reaching continue
+                                i--;
+                            }
+                        }
+
+                        if (!isOpen) {
                             break;
                         }
 
                         if (needRefreshPlayingTrack) {
-                            break;
+                            continue;
                         }
 
                         // process tempo change message
@@ -404,6 +498,16 @@ public class SequencerImpl implements Sequencer {
                         }
 
                         fireEventListeners(midiMessage);
+
+                        // store playing note status
+                        if (midiMessage instanceof ShortMessage) {
+                            ShortMessage noteMessage = (ShortMessage) midiMessage;
+                            if (noteMessage.getCommand() == ShortMessage.NOTE_ON) {
+                                playingNotes[noteMessage.getChannel()][noteMessage.getData1()] = noteMessage.getData2() > 0;
+                            } else if (noteMessage.getCommand() == ShortMessage.NOTE_OFF) {
+                                playingNotes[noteMessage.getChannel()][noteMessage.getData1()] = false;
+                            }
+                        }
                     }
                 }
 
@@ -515,6 +619,9 @@ public class SequencerImpl implements Sequencer {
 
         if (sequencerThread == null) {
             sequencerThread = new SequencerThread();
+            synchronized (sequencers) {
+                sequencers.add(this);
+            }
             sequencerThread.setName("MidiSequencer_" + sequencerThread.getId());
             try {
                 sequencerThread.start();
@@ -526,6 +633,17 @@ public class SequencerImpl implements Sequencer {
         isOpen = true;
         synchronized (sequencerThread) {
             sequencerThread.notifyAll();
+        }
+    }
+
+    /**
+     * Closes all sequencers
+     */
+    public static void closeAllSequencers() {
+        synchronized (sequencers) {
+            for (SequencerImpl sequencer : sequencers) {
+                sequencer.close();
+            }
         }
     }
 
@@ -545,6 +663,7 @@ public class SequencerImpl implements Sequencer {
             sequencerThread.stopPlaying();
             sequencerThread.stopRecording();
             isOpen = false;
+            sequencerThread.interrupt();
             sequencerThread = null;
         }
 
@@ -688,6 +807,22 @@ public class SequencerImpl implements Sequencer {
             throw new IllegalArgumentException("Invalid loop count value:" + count);
         }
         loopCount = count;
+    }
+
+    /**
+     * Get the setting of: plays `intro` part before loop start point
+     * @return true: plays `intro` part before loop start point
+     */
+    public boolean getPlayIntroOnFirstLoop() {
+        return playIntroOnFirstLoop;
+    }
+
+    /**
+     * Plays `intro` part before loop start point
+     * @param playIntro true: plays intro before loop start point</param>
+     */
+    public void setPlayIntroOnFirstLoop(boolean playIntro) {
+        playIntroOnFirstLoop = playIntro;
     }
 
     @Override
