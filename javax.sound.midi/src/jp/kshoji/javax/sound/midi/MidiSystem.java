@@ -89,7 +89,10 @@ public final class MidiSystem {
 			final List<Receiver> result = new ArrayList<Receiver>();
 			final Info[] midiDeviceInfos = MidiSystem.getMidiDeviceInfo();
 			for (final Info midiDeviceInfo : midiDeviceInfos) {
-				result.addAll(MidiSystem.getMidiDevice(midiDeviceInfo).getReceivers());
+				MidiDevice midiDevice = MidiSystem.getMidiDevice(midiDeviceInfo);
+				if (midiDevice != null) {
+					result.addAll(midiDevice.getReceivers());
+				}
 			}
 
 			return result;
@@ -106,7 +109,10 @@ public final class MidiSystem {
 			final List<Transmitter> result = new ArrayList<Transmitter>();
 			final Info[] midiDeviceInfos = MidiSystem.getMidiDeviceInfo();
 			for (final Info midiDeviceInfo : midiDeviceInfos) {
-				result.addAll(MidiSystem.getMidiDevice(midiDeviceInfo).getTransmitters());
+				MidiDevice midiDevice = MidiSystem.getMidiDevice(midiDeviceInfo);
+				if (midiDevice != null) {
+					result.addAll(midiDevice.getTransmitters());
+				}
 			}
 
 			return result;
@@ -129,12 +135,12 @@ public final class MidiSystem {
 		final List<MidiDevice.Info> result = new ArrayList<MidiDevice.Info>();
 		synchronized (midiDevices) {
             for (final MidiDevice device : midiDevices) {
-                final Info deviceInfo = device.getDeviceInfo();
-                if (deviceInfo != null) {
-                    result.add(deviceInfo);
-                }
+				if (device != null) {
+					result.add(device.getDeviceInfo());
+				}
             }
 		}
+
 		return result.toArray(new MidiDevice.Info[result.size()]);
 	}
 
@@ -148,19 +154,17 @@ public final class MidiSystem {
 	 */
     @NonNull
     public static MidiDevice getMidiDevice(@NonNull final MidiDevice.Info info) throws MidiUnavailableException, IllegalArgumentException {
-        if (midiDevices.isEmpty()) {
-            throw new MidiUnavailableException("MidiDevice not found");
-        }
-
         synchronized (midiDevices) {
             for (final MidiDevice midiDevice : midiDevices) {
-                if (info.equals(midiDevice.getDeviceInfo())) {
-                    return midiDevice;
-                }
+				if (midiDevice != null) {
+					if (info.equals(midiDevice.getDeviceInfo())) {
+						return midiDevice;
+					}
+				}
             }
 		}
 
-		throw new IllegalArgumentException("Requested device not installed: " + info);
+		throw new MidiUnavailableException("MidiDevice not found");
 	}
 
 	/**
@@ -173,9 +177,8 @@ public final class MidiSystem {
     public static Receiver getReceiver() throws MidiUnavailableException {
         synchronized (midiDevices) {
             for (final MidiDevice midiDevice : midiDevices) {
-                final Receiver receiver = midiDevice.getReceiver();
-                if (receiver != null) {
-                    return receiver;
+				if (midiDevice != null) {
+                    return midiDevice.getReceiver();
                 }
             }
 		}
@@ -192,9 +195,8 @@ public final class MidiSystem {
     public static Transmitter getTransmitter() throws MidiUnavailableException {
         synchronized (midiDevices) {
             for (final MidiDevice midiDevice : midiDevices) {
-                final Transmitter transmitter = midiDevice.getTransmitter();
-                if (transmitter != null) {
-                    return transmitter;
+                if (midiDevice != null) {
+                    return midiDevice.getTransmitter();
                 }
             }
 		}
