@@ -75,6 +75,7 @@ public class SequencerImpl implements Sequencer {
      */
     private class SequencerThread extends Thread {
         private long tickPosition = 0;
+        private boolean[][] playingNotes;
 
         // recording
         private long recordingStartedTime;
@@ -216,6 +217,37 @@ public class SequencerImpl implements Sequencer {
                 notifyAll();
             }
             interrupt();
+
+            stopAllPlayingNotes();
+        }
+
+        private void stopAllPlayingNotes()
+        {
+            ShortMessage midiMessage = new ShortMessage();
+            for (int channel = 0; channel < 16; channel++)
+            {
+                for (int note = 0; note < 128; note++)
+                {
+                    // send NoteOff event to playing notes
+                    if (playingNotes[channel][note])
+                    {
+                        try {
+                            midiMessage.setMessage(ShortMessage.NOTE_OFF | channel, note, 0);
+
+                            synchronized (receivers)
+                            {
+                                for (Receiver receiver : receivers)
+                                {
+                                    receiver.send(midiMessage, 0);
+                                }
+                            }
+
+                            playingNotes[channel][note] = false;
+                        } catch (InvalidMidiDataException ignored) {
+                        }
+                    }
+                }
+            }
         }
 
         /**
@@ -281,6 +313,11 @@ public class SequencerImpl implements Sequencer {
                     // receive from all transmitters
                     transmitter.setReceiver(midiEventRecordingReceiver);
                 }
+            }
+
+            playingNotes = new boolean[16][];
+            for (int i = 0; i < 16; i++) {
+                playingNotes[i] = new boolean[128];
             }
 
             // playing
@@ -363,6 +400,11 @@ public class SequencerImpl implements Sequencer {
                         }
 
                         if (midiEvent.getTick() < getLoopStartPoint() || (getLoopEndPoint() != -1 && midiEvent.getTick() > getLoopEndPoint())) {
+                            if (tickPosition <= getLoopEndPoint() && midiEvent.getTick() > getLoopEndPoint()) {
+                                // reached loop end
+                                stopAllPlayingNotes();
+                            }
+
                             // outer loop
                             tickPosition = midiEvent.getTick();
                             tickPositionSetTime = System.currentTimeMillis();
@@ -439,6 +481,16 @@ public class SequencerImpl implements Sequencer {
                         }
 
                         fireEventListeners(midiMessage);
+
+                        // store playing note status
+                        if (midiMessage instanceof ShortMessage) {
+                            ShortMessage noteMessage = (ShortMessage) midiMessage;
+                            if (noteMessage.getCommand() == ShortMessage.NOTE_ON) {
+                                playingNotes[noteMessage.getChannel()][noteMessage.getData1()] = noteMessage.getData2() > 0;
+                            } else if (noteMessage.getCommand() == ShortMessage.NOTE_OFF) {
+                                playingNotes[noteMessage.getChannel()][noteMessage.getData1()] = false;
+                            }
+                        }
                     }
                 }
 
