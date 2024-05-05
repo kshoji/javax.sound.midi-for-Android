@@ -464,6 +464,11 @@ public class SequencerImpl implements Sequencer {
                                     break;
                                 }
                             }
+
+                            if (needRefreshPlayingTrack) {
+                                // `i` will increment after reaching continue
+                                i--;
+                            }
                         }
 
                         if (!isOpen) {
