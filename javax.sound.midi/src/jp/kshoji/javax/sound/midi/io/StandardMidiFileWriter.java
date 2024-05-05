@@ -12,6 +12,8 @@ import jp.kshoji.javax.sound.midi.MetaMessage;
 import jp.kshoji.javax.sound.midi.MidiEvent;
 import jp.kshoji.javax.sound.midi.MidiFileFormat;
 import jp.kshoji.javax.sound.midi.Sequence;
+import jp.kshoji.javax.sound.midi.ShortMessage;
+import jp.kshoji.javax.sound.midi.SysexMessage;
 import jp.kshoji.javax.sound.midi.Track;
 import jp.kshoji.javax.sound.midi.spi.MidiFileWriter;
 
@@ -182,6 +184,10 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 		MidiEvent midiEvent = null;
 		for (int i = 0; i < eventCount; i++) {
             midiEvent = track.get(i);
+			if (midiEvent.getMessage() instanceof ShortMessage && midiEvent.getMessage().getStatus() >= 0xf8) {
+				// ignore system realtime messages
+				continue;
+			}
 			final long tick = midiEvent.getTick();
 			trackLength += MidiDataOutputStream.variableLengthIntLength((int) (tick - lastTick));
 			lastTick = tick;
@@ -203,11 +209,31 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 		lastTick = 0;
 		for (int i = 0; i < eventCount; i++) {
             midiEvent = track.get(i);
-            final long tick = midiEvent.getTick();
+			if (midiEvent.getMessage() instanceof ShortMessage && midiEvent.getMessage().getStatus() >= 0xf8) {
+				// ignore system realtime messages
+				continue;
+			}
+			final long tick = midiEvent.getTick();
 			midiDataOutputStream.writeVariableLengthInt((int) (tick - lastTick));
 			lastTick = tick;
-			
-			midiDataOutputStream.write(midiEvent.getMessage().getMessage(), 0, midiEvent.getMessage().getLength());
+
+			if (midiEvent.getMessage() instanceof SysexMessage) {
+				SysexMessage sysexMessage = (SysexMessage) midiEvent.getMessage();
+				midiDataOutputStream.writeByte((byte) midiEvent.getMessage().getStatus());
+				byte[] sysexData = sysexMessage.getData();
+				midiDataOutputStream.writeVariableLengthInt(sysexData.length);
+				midiDataOutputStream.write(sysexData, 0, sysexData.length);
+			} else if (midiEvent.getMessage() instanceof MetaMessage) {
+				MetaMessage metaMessage = (MetaMessage)midiEvent.getMessage();
+
+				midiDataOutputStream.writeByte(0xff);
+				midiDataOutputStream.writeByte((byte)metaMessage.getType());
+				byte[] metaData = metaMessage.getData();
+				midiDataOutputStream.writeVariableLengthInt(metaData.length);
+				midiDataOutputStream.write(metaData, 0, metaData.length);
+			} else {
+				midiDataOutputStream.write(midiEvent.getMessage().getMessage(), 0, midiEvent.getMessage().getLength());
+			}
         }
 
         // write End of Track message if not found.

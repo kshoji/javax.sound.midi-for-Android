@@ -17,6 +17,8 @@ import jp.kshoji.javax.sound.midi.MidiDevice.Info;
 import jp.kshoji.javax.sound.midi.impl.SequencerImpl;
 import jp.kshoji.javax.sound.midi.io.StandardMidiFileReader;
 import jp.kshoji.javax.sound.midi.io.StandardMidiFileWriter;
+import jp.kshoji.javax.sound.midi.listener.OnMidiDeviceAttachedListener;
+import jp.kshoji.javax.sound.midi.listener.OnMidiDeviceDetachedListener;
 
 /**
  * MidiSystem porting for Android
@@ -28,6 +30,8 @@ public final class MidiSystem {
     private static final Collection<Synthesizer> synthesizers = new HashSet<Synthesizer>();
     private static final StandardMidiFileReader standardMidiFileReader = new StandardMidiFileReader();
     private static final StandardMidiFileWriter standardMidiFileWriter = new StandardMidiFileWriter();
+    private static final Collection<OnMidiDeviceAttachedListener> attachedListeners = new HashSet<OnMidiDeviceAttachedListener>();
+    private static final Collection<OnMidiDeviceDetachedListener> detachedListeners = new HashSet<OnMidiDeviceDetachedListener>();
 
     /**
      * Add a {@link jp.kshoji.javax.sound.midi.MidiDevice} to the {@link jp.kshoji.javax.sound.midi.MidiSystem}
@@ -37,6 +41,11 @@ public final class MidiSystem {
     public static void addMidiDevice(@NonNull final MidiDevice midiDevice) {
         synchronized (midiDevices) {
             midiDevices.add(midiDevice);
+        }
+        synchronized (attachedListeners) {
+            for (OnMidiDeviceAttachedListener listener: attachedListeners) {
+                listener.onMidiDeviceAttached(midiDevice.getDeviceInfo());
+            }
         }
     }
 
@@ -48,6 +57,11 @@ public final class MidiSystem {
     public static void removeMidiDevice(@NonNull final MidiDevice midiDevice) {
         synchronized (midiDevices) {
             midiDevices.remove(midiDevice);
+        }
+        synchronized (detachedListeners) {
+            for (OnMidiDeviceDetachedListener listener: detachedListeners) {
+                listener.onMidiDeviceDetached(midiDevice.getDeviceInfo());
+            }
         }
     }
 
@@ -89,7 +103,10 @@ public final class MidiSystem {
 			final List<Receiver> result = new ArrayList<Receiver>();
 			final Info[] midiDeviceInfos = MidiSystem.getMidiDeviceInfo();
 			for (final Info midiDeviceInfo : midiDeviceInfos) {
-				result.addAll(MidiSystem.getMidiDevice(midiDeviceInfo).getReceivers());
+				MidiDevice midiDevice = MidiSystem.getMidiDevice(midiDeviceInfo);
+				if (midiDevice != null) {
+					result.addAll(midiDevice.getReceivers());
+				}
 			}
 
 			return result;
@@ -106,7 +123,10 @@ public final class MidiSystem {
 			final List<Transmitter> result = new ArrayList<Transmitter>();
 			final Info[] midiDeviceInfos = MidiSystem.getMidiDeviceInfo();
 			for (final Info midiDeviceInfo : midiDeviceInfos) {
-				result.addAll(MidiSystem.getMidiDevice(midiDeviceInfo).getTransmitters());
+				MidiDevice midiDevice = MidiSystem.getMidiDevice(midiDeviceInfo);
+				if (midiDevice != null) {
+					result.addAll(midiDevice.getTransmitters());
+				}
 			}
 
 			return result;
@@ -129,12 +149,12 @@ public final class MidiSystem {
 		final List<MidiDevice.Info> result = new ArrayList<MidiDevice.Info>();
 		synchronized (midiDevices) {
             for (final MidiDevice device : midiDevices) {
-                final Info deviceInfo = device.getDeviceInfo();
-                if (deviceInfo != null) {
-                    result.add(deviceInfo);
-                }
+				if (device != null) {
+					result.add(device.getDeviceInfo());
+				}
             }
 		}
+
 		return result.toArray(new MidiDevice.Info[result.size()]);
 	}
 
@@ -148,19 +168,17 @@ public final class MidiSystem {
 	 */
     @NonNull
     public static MidiDevice getMidiDevice(@NonNull final MidiDevice.Info info) throws MidiUnavailableException, IllegalArgumentException {
-        if (midiDevices.isEmpty()) {
-            throw new MidiUnavailableException("MidiDevice not found");
-        }
-
         synchronized (midiDevices) {
             for (final MidiDevice midiDevice : midiDevices) {
-                if (info.equals(midiDevice.getDeviceInfo())) {
-                    return midiDevice;
-                }
+				if (midiDevice != null) {
+					if (info.equals(midiDevice.getDeviceInfo())) {
+						return midiDevice;
+					}
+				}
             }
 		}
 
-		throw new IllegalArgumentException("Requested device not installed: " + info);
+		throw new MidiUnavailableException("MidiDevice not found");
 	}
 
 	/**
@@ -173,9 +191,8 @@ public final class MidiSystem {
     public static Receiver getReceiver() throws MidiUnavailableException {
         synchronized (midiDevices) {
             for (final MidiDevice midiDevice : midiDevices) {
-                final Receiver receiver = midiDevice.getReceiver();
-                if (receiver != null) {
-                    return receiver;
+				if (midiDevice != null) {
+                    return midiDevice.getReceiver();
                 }
             }
 		}
@@ -192,9 +209,8 @@ public final class MidiSystem {
     public static Transmitter getTransmitter() throws MidiUnavailableException {
         synchronized (midiDevices) {
             for (final MidiDevice midiDevice : midiDevices) {
-                final Transmitter transmitter = midiDevice.getTransmitter();
-                if (transmitter != null) {
-                    return transmitter;
+                if (midiDevice != null) {
+                    return midiDevice.getTransmitter();
                 }
             }
 		}
@@ -440,4 +456,66 @@ public final class MidiSystem {
     public static int write(@NonNull final Sequence sequence, final int fileType, @NonNull final OutputStream outputStream) throws IOException {
 		return standardMidiFileWriter.write(sequence, fileType, outputStream);
 	}
+
+    /**
+     * Adds the specified {@link OnMidiDeviceAttachedListener} to receive events when devices are attached.
+     * If the listener is null, no exception is thrown and no action is performed.
+     *
+     * @param listener - the listener
+     * @see #removeDeviceAttachedListener(OnMidiDeviceAttachedListener)
+     */
+    public static void addDeviceAttachedListener(@NonNull OnMidiDeviceAttachedListener listener) {
+        if (listener == null)
+            return;
+        synchronized (attachedListeners) {
+            attachedListeners.add(listener);
+        }
+    }
+
+    /**
+     * Removes the specified {@link OnMidiDeviceAttachedListener} so that it no longer receives events when devices are attached.
+     * This method performs no function, nor does it throw an exception, if the listener specified by the argument was not previously added.
+     * If the listener is null, no exception is thrown and no action is performed.
+     *
+     * @param listener - the listener
+     * @see #addDeviceAttachedListener(OnMidiDeviceAttachedListener)
+     */
+    public static void removeDeviceAttachedListener(@NonNull OnMidiDeviceAttachedListener listener) {
+        if (listener == null)
+            return;
+        synchronized (attachedListeners) {
+            attachedListeners.remove(listener);
+        }
+    }
+
+    /**
+     * Adds the specified {@link OnMidiDeviceDetachedListener} to receive events when devices are detached.
+     * If the listener is null, no exception is thrown and no action is performed.
+     *
+     * @param listener - the listener
+     * @see #removeDeviceDetachedListener(OnMidiDeviceDetachedListener)
+     */
+    public static void addDeviceDetachedListener(@NonNull OnMidiDeviceDetachedListener listener) {
+        if (listener == null)
+            return;
+        synchronized (detachedListeners) {
+            detachedListeners.add(listener);
+        }
+    }
+
+    /**
+     * Removes the specified {@link OnMidiDeviceDetachedListener} so that it no longer receives events when devices are detached.
+     * This method performs no function, nor does it throw an exception, if the listener specified by the argument was not previously added.
+     * If the listener is null, no exception is thrown and no action is performed.
+     *
+     * @param listener - the listener
+     * @see #addDeviceDetachedListener(OnMidiDeviceDetachedListener)
+     */
+    public static void removeDeviceDetachedListener(@NonNull OnMidiDeviceDetachedListener listener) {
+        if (listener == null)
+            return;
+        synchronized (detachedListeners) {
+            detachedListeners.remove(listener);
+        }
+    }
 }

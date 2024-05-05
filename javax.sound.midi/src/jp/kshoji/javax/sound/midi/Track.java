@@ -47,21 +47,9 @@ public class Track {
 
 			// same timing
 			// sort by the MIDI data priority order, as:
-			// system message > control messages > note on > note off
-			// swap the priority of note on, and note off
+			// system message > control messages > note off > note on
 			int lhsInt = lhsMessage[0] & 0xf0;
 			int rhsInt = rhsMessage[0] & 0xf0;
-
-			if ((lhsInt & 0x90) == 0x80) {
-				lhsInt |= 0x10;
-			} else {
-				lhsInt &= ~0x10;
-			}
-			if ((rhsInt & 0x90) == 0x80) {
-				rhsInt |= 0x10;
-			} else {
-				rhsInt &= ~0x10;
-			}
 
 			return -(lhsInt - rhsInt);
 		}
@@ -134,7 +122,7 @@ public class Track {
 				// remove all of END_OF_TRACK
 				final Collection<MidiEvent> filtered = new ArrayList<MidiEvent>();
 				for (final MidiEvent event : track.events) {
-					if (!Arrays.equals(END_OF_TRACK, event.getMessage().getMessage())) {
+					if (event != null && !Arrays.equals(END_OF_TRACK, event.getMessage().getMessage())) {
 						filtered.add(event);
 					}
 				}

@@ -1,4 +1,11 @@
-apply plugin: 'com.android.library'
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+}
+
+repositories {
+    mavenCentral()
+}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: '*.jar')
@@ -6,11 +13,10 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 29
-
     defaultConfig {
+        compileSdk 34
         minSdkVersion 12
-        targetSdkVersion 29
+        targetSdkVersion 34
     }
 
     sourceSets {
@@ -36,15 +42,52 @@ android {
         debug.setRoot('build-types/debug')
         release.setRoot('build-types/release')
     }
-}
 
-apply plugin: 'maven'
-group = 'jp.kshoji'
-uploadArchives {
-    repositories.mavenDeployer {
-        repository url: 'file://' + file('repository').absolutePath
-        pom.version = '0.0.4'
-        pom.artifactId = 'javax-sound-midi'
+    defaultConfig {
+        consumerProguardFiles 'proguard-rules.pro'
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
+
+    namespace 'jp.kshoji.javax.sound.midi'
+
+    buildFeatures {
+        renderScript true
+        aidl true
     }
 }
-task install(dependsOn: uploadArchives)
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            group = 'jp.kshoji'
+            artifactId = 'javax-sound-midi'
+            version = '0.0.5'
+
+            afterEvaluate {
+                from components.release
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url = "${project.projectDir}/repository"
+        }
+    }
+}
