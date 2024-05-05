@@ -218,11 +218,19 @@ public class StandardMidiFileWriter extends MidiFileWriter {
 			lastTick = tick;
 
 			if (midiEvent.getMessage() instanceof SysexMessage) {
-				SysexMessage sysexMessage = (SysexMessage)midiEvent.getMessage();
-				midiDataOutputStream.writeByte((byte)midiEvent.getMessage().getStatus());
+				SysexMessage sysexMessage = (SysexMessage) midiEvent.getMessage();
+				midiDataOutputStream.writeByte((byte) midiEvent.getMessage().getStatus());
 				byte[] sysexData = sysexMessage.getData();
 				midiDataOutputStream.writeVariableLengthInt(sysexData.length);
 				midiDataOutputStream.write(sysexData, 0, sysexData.length);
+			} else if (midiEvent.getMessage() instanceof MetaMessage) {
+				MetaMessage metaMessage = (MetaMessage)midiEvent.getMessage();
+
+				midiDataOutputStream.writeByte(0xff);
+				midiDataOutputStream.writeByte((byte)metaMessage.getType());
+				byte[] metaData = metaMessage.getData();
+				midiDataOutputStream.writeVariableLengthInt(metaData.length);
+				midiDataOutputStream.write(metaData, 0, metaData.length);
 			} else {
 				midiDataOutputStream.write(midiEvent.getMessage().getMessage(), 0, midiEvent.getMessage().getLength());
 			}
