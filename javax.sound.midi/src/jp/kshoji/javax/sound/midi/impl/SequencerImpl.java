@@ -369,17 +369,22 @@ public class SequencerImpl implements Sequencer {
                             continue;
                         }
 
-                        try {
-                            final long sleepLength = (long) ((1.0f / getTicksPerMicrosecond()) * (midiEvent.getTick() - tickPosition) / 1000f / getTempoFactor());
-                            if (sleepLength > 0) {
-                                wait(sleepLength);
+                        long eventFireTime = System.currentTimeMillis();
+                        synchronized (this) {
+                            try {
+                                long sleepLength = (long) ((1.0f / getTicksPerMicrosecond()) * (midiEvent.getTick() - tickPosition) / 1000f / getTempoFactor());
+                                sleepLength -= eventFireTime - tickPositionSetTime;
+                                eventFireTime += sleepLength;
+                                if (sleepLength > 0) {
+                                    wait(sleepLength);
+                                }
+                            } catch (final InterruptedException ignored) {
+                                // ignore exception
                             }
-                        } catch (final InterruptedException ignored) {
-                            // ignore exception
                         }
 
                         tickPosition = midiEvent.getTick();
-                        tickPositionSetTime = System.currentTimeMillis();
+                        tickPositionSetTime = eventFireTime;
 
                         // pause / resume
                         while (!isRunning && isOpen) {
