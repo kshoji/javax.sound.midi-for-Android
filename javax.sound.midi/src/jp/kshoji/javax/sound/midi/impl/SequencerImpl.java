@@ -56,6 +56,7 @@ public class SequencerImpl implements Sequencer {
     private int loopCount = 0;
     private long loopStartPoint = 0;
     private long loopEndPoint = -1;
+    private boolean playIntroOnFirstLoop = false;
     private volatile float tempoFactor = 1.0f;
     private SyncMode masterSyncMode = SyncMode.INTERNAL_CLOCK;
     private SyncMode slaveSyncMode = SyncMode.NO_SYNC;
@@ -344,6 +345,7 @@ public class SequencerImpl implements Sequencer {
                 }
 
                 // process looping
+                boolean isFirstLoop = true;
                 final int loopCount = getLoopCount() == LOOP_CONTINUOUSLY ? 1 : getLoopCount() + 1;
                 for (int loop = 0; loop < loopCount; loop += getLoopCount() == LOOP_CONTINUOUSLY ? 0 : 1) {
                     if (needRefreshPlayingTrack) {
@@ -399,7 +401,9 @@ public class SequencerImpl implements Sequencer {
                             }
                         }
 
-                        if (midiEvent.getTick() < getLoopStartPoint() || (getLoopEndPoint() != -1 && midiEvent.getTick() > getLoopEndPoint())) {
+                        // don't skip if GetPlayBeforeLoopOnce() && loop == 0
+                        if (((getPlayIntroOnFirstLoop() && !isFirstLoop) || !getPlayIntroOnFirstLoop()) && midiEvent.getTick() < getLoopStartPoint() ||
+                                (getLoopEndPoint() != -1 && midiEvent.getTick() > getLoopEndPoint())) {
                             if (tickPosition <= getLoopEndPoint() && midiEvent.getTick() > getLoopEndPoint()) {
                                 // reached loop end
                                 stopAllPlayingNotes();
@@ -408,6 +412,7 @@ public class SequencerImpl implements Sequencer {
                             // outer loop
                             tickPosition = midiEvent.getTick();
                             tickPositionSetTime = System.currentTimeMillis();
+                            isFirstLoop = false;
                             continue;
                         }
 
@@ -790,6 +795,22 @@ public class SequencerImpl implements Sequencer {
             throw new IllegalArgumentException("Invalid loop count value:" + count);
         }
         loopCount = count;
+    }
+
+    /**
+     * Get the setting of: plays `intro` part before loop start point
+     * @return true: plays `intro` part before loop start point
+     */
+    public boolean getPlayIntroOnFirstLoop() {
+        return playIntroOnFirstLoop;
+    }
+
+    /**
+     * Plays `intro` part before loop start point
+     * @param playIntro true: plays intro before loop start point</param>
+     */
+    public void setPlayIntroOnFirstLoop(boolean playIntro) {
+        playIntroOnFirstLoop = playIntro;
     }
 
     @Override
