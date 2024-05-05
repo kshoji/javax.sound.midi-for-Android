@@ -150,6 +150,10 @@ public class SequencerImpl implements Sequencer {
 
             final Collection<MidiEvent> eventToRemoval = new HashSet<MidiEvent>();
             for (final Track track : sequence.getTracks()) {
+                if (track == recordingTrack) {
+                    continue;
+                }
+
                 final Set<Integer> recordEnableChannels = recordEnable.get(track);
 
                 // remove events while recorded time
@@ -168,8 +172,9 @@ public class SequencerImpl implements Sequencer {
 
                 // add recorded events
                 for (int eventIndex = 0; eventIndex < recordingTrack.size(); eventIndex++) {
-                    if (isRecordable(recordEnableChannels, recordingTrack.get(eventIndex))) {
-                        track.add(recordingTrack.get(eventIndex));
+                    MidiEvent midiEvent = recordingTrack.get(eventIndex);
+                    if (isRecordable(recordEnableChannels, midiEvent)) {
+                        track.add(midiEvent);
                     }
                 }
 
@@ -436,13 +441,15 @@ public class SequencerImpl implements Sequencer {
                         // pause / resume
                         while (!isRunning && isOpen) {
                             boolean pausing = !isRunning;
-                            try {
-                                // wait for being notified
-                                while (!isRunning && isOpen) {
-                                    wait();
+                            synchronized (this) {
+                                try {
+                                    // wait for being notified
+                                    while (!isRunning && isOpen) {
+                                        wait();
+                                    }
+                                } catch (final InterruptedException ignored) {
+                                    // ignore exception
                                 }
-                            } catch (final InterruptedException ignored) {
-                                // ignore exception
                             }
                             if (!pausing) {
                                 continue;
