@@ -77,7 +77,7 @@ publishing {
         release(MavenPublication) {
             group = 'jp.kshoji'
             artifactId = 'javax-sound-midi'
-            version = '0.0.5'
+            version = '0.0.6'
 
             afterEvaluate {
                 from components.release
