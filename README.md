@@ -1,5 +1,5 @@
 # javax.sound.midi-for-Android
-[![Build Status](https://travis-ci.com/kshoji/javax.sound.midi-for-Android.svg?branch=develop)](https://travis-ci.com/kshoji/javax.sound.midi-for-Android)
+[![Build Status](https://jitpack.io/v/kshoji/javax.sound.midi-for-Android.svg)](https://jitpack.io/#kshoji/javax.sound.midi-for-Android)
 
 This library is a porting of Java `javax.sound.midi` package.
 It's used with `USB MIDI Driver` project or `BLE MIDI for Android` project.
